@@ -102,7 +102,7 @@ The `AddArgument` method registers an argument with the command. The first argum
 
 The third argument is a `string` value which is the default-value of the argument. If user doesn't provide the value of this argument, this argument will get the value from the default-value. If the default-value is an empty string (""), then it becomes a **required argument**. If the value of a required argument is not provided by the user, an error message is displayed.
 
-You should register all arguments with a default-value first (_non-required arguments_). Since these are positional values, it is mandatory to do so, else you would get inappropriate results. 
+**You should register all required arguments first**. Since these are positional values, it is mandatory to do so, else you would get inappropriate results. 
 
 > If the argument is already registered, then registration of the argument is skipped without returning an error. You can configure arguments of the **root-command** by passing `nil` as an argument to the `Register()` function.
 
