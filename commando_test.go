@@ -2,6 +2,7 @@ package commando
 
 import (
 	"fmt"
+	"os"
 	"os/exec"
 	"strings"
 	"testing"
@@ -9,6 +10,7 @@ import (
 
 /*----------------*/
 
+// executable name should not be empty
 func TestEmptyExecutableName(t *testing.T) {
 	// command
 	cmd := exec.Command("go", "run", "tests/empty-exec-name.go")
@@ -23,6 +25,7 @@ func TestEmptyExecutableName(t *testing.T) {
 	}
 }
 
+// a sub-command must have an action function
 func TestMissingActionFunction(t *testing.T) {
 	// command
 	cmdRoot := exec.Command("go", "run", "tests/missing-action-function.go")
@@ -53,6 +56,7 @@ func TestMissingActionFunction(t *testing.T) {
 	}
 }
 
+// default value of a flag must match the data type
 func TestInvalidDefaultValue(t *testing.T) {
 	// command
 	cmdCreate := exec.Command("go", "run", "tests/invalid-default-value.go", "create")
@@ -69,9 +73,11 @@ func TestInvalidDefaultValue(t *testing.T) {
 
 /*----------------*/
 
+// unknown command show display an error
 func TestUnknownCommand(t *testing.T) {
 	// command
 	cmdPrint := exec.Command("go", "run", "tests/valid-registry.go", "print")
+	cmdPrint.Env = append(os.Environ(), "NO_ROOT=TRUE")
 
 	// get output
 	if output, err := cmdPrint.Output(); err != nil {
@@ -85,13 +91,14 @@ func TestUnknownCommand(t *testing.T) {
 	}
 }
 
+// unsupported flag must display an error
 func TestUnsupportedFlag(t *testing.T) {
 
 	unsupportedFlags := []string{"---version", "-version"}
 
 	for _, flag := range unsupportedFlags {
 		// command
-		rootCreate := exec.Command("go", "run", "tests/valid-registry-with-root.go", flag)
+		rootCreate := exec.Command("go", "run", "tests/valid-registry.go", flag)
 
 		// get output
 		if output, err := rootCreate.Output(); err != nil {
@@ -104,9 +111,10 @@ func TestUnsupportedFlag(t *testing.T) {
 	}
 }
 
+// missing argument value of a required argument must display an error
 func TestMissingArgument(t *testing.T) {
 	// command
-	rootCreate := exec.Command("go", "run", "tests/valid-registry-with-root.go")
+	rootCreate := exec.Command("go", "run", "tests/valid-registry.go")
 
 	// get output
 	if output, err := rootCreate.Output(); err != nil {
@@ -120,7 +128,7 @@ func TestMissingArgument(t *testing.T) {
 	/*----------------*/
 
 	// command
-	createCreate := exec.Command("go", "run", "tests/valid-registry-with-root.go", "create")
+	createCreate := exec.Command("go", "run", "tests/valid-registry.go", "create")
 
 	// get output
 	if output, err := createCreate.Output(); err != nil {
@@ -132,9 +140,10 @@ func TestMissingArgument(t *testing.T) {
 	}
 }
 
+// missing flag value of a required flag must display an error
 func TestMissingFlag(t *testing.T) {
 	// command
-	createCreate := exec.Command("go", "run", "tests/valid-registry-with-root.go", "create", "my-service")
+	createCreate := exec.Command("go", "run", "tests/valid-registry.go", "create", "my-service")
 
 	// get output
 	if output, err := createCreate.Output(); err != nil {
@@ -146,9 +155,10 @@ func TestMissingFlag(t *testing.T) {
 	}
 }
 
+// wrong value of a flag must display an error
 func TestInvalidFlagValue(t *testing.T) {
 	// command
-	createCreate := exec.Command("go", "run", "tests/valid-registry-with-root.go", "create", "my-service", "-d", "./services/my-service", "--timeout", "10sec")
+	createCreate := exec.Command("go", "run", "tests/valid-registry.go", "create", "my-service", "-d", "./services/my-service", "--timeout", "10sec")
 
 	// get output
 	if output, err := createCreate.Output(); err != nil {
@@ -160,9 +170,10 @@ func TestInvalidFlagValue(t *testing.T) {
 	}
 }
 
+// test if all values of a root-command are valid
 func TestValidRootCommand(t *testing.T) {
 	// command
-	createCreate := exec.Command("go", "run", "tests/valid-registry-with-root.go", "service")
+	createCreate := exec.Command("go", "run", "tests/valid-registry.go", "service")
 
 	// get output
 	if output, err := createCreate.Output(); err != nil {
@@ -183,16 +194,32 @@ func TestValidRootCommand(t *testing.T) {
 	}
 }
 
+// test if default value of an argument is correct
+func TestDefaultArgValue(t *testing.T) {
+	// command
+	createCreate := exec.Command("go", "run", "tests/valid-registry.go", "create", "my-service", "-t", "service", "--dir=./service/my-service", "--timeout", "10", "-v")
+
+	// get output
+	if output, err := createCreate.Output(); err != nil {
+		fmt.Println("Error:", err)
+	} else {
+		if !strings.Contains(fmt.Sprintf("%s", output), "arg -> version: 1.0.0(string)") {
+			t.Fail()
+		}
+	}
+}
+
+// test if all values of a sub-command are valid
 func TestValidSubCommand(t *testing.T) {
 	// command
-	createCreate := exec.Command("go", "run", "tests/valid-registry-with-root.go", "create", "my-service", "services/my-service", "-t", "service", "--dir=./service/my-service", "--timeout", "10", "-v")
+	createCreate := exec.Command("go", "run", "tests/valid-registry.go", "create", "my-service", "1.0.0", "-t", "service", "--dir=./service/my-service", "--timeout", "10", "-v")
 
 	// get output
 	if output, err := createCreate.Output(); err != nil {
 		fmt.Println("Error:", err)
 	} else {
 		values := []string{
-			"arg -> alias: services/my-service(string)",
+			"arg -> version: 1.0.0(string)",
 			"arg -> name: my-service(string)",
 			"flag -> dir: ./service/my-service(string)",
 			"flag -> type: service(string)",
@@ -209,13 +236,14 @@ func TestValidSubCommand(t *testing.T) {
 	}
 }
 
+// test if version is displayed properly
 func TestValidVersion(t *testing.T) {
 
 	versionTriggers := []string{"-v", "--version", "version"}
 
 	for _, versionTrigger := range versionTriggers {
 		// command
-		createCreate := exec.Command("go", "run", "tests/valid-registry-with-root.go", versionTrigger)
+		createCreate := exec.Command("go", "run", "tests/valid-registry.go", versionTrigger)
 
 		// get output
 		if output, err := createCreate.Output(); err != nil {
@@ -228,13 +256,14 @@ func TestValidVersion(t *testing.T) {
 	}
 }
 
-func TestValidHelp(t *testing.T) {
+// test if usage of the root-command is displayed properly
+func TestValidRootCommandUsage(t *testing.T) {
 
 	helpTriggers := []string{"-h", "--help", "help"}
 
 	for _, helpTrigger := range helpTriggers {
 		// command
-		createCreate := exec.Command("go", "run", "tests/valid-registry-with-root.go", helpTrigger)
+		createCreate := exec.Command("go", "run", "tests/valid-registry.go", helpTrigger)
 
 		// get output
 		if output, err := createCreate.Output(); err != nil {
@@ -262,6 +291,46 @@ func TestValidHelp(t *testing.T) {
 				"-h, --help                    displays usage information of the application or a command",
 				"-V, --verbose                 display log information",
 				"-v, --version                 displays version number",
+			}
+
+			for _, value := range values {
+				if !strings.Contains(fmt.Sprintf("%s", output), value) {
+					t.Fail()
+				}
+			}
+		}
+	}
+}
+
+// test if usage of the sub-command is displayed properly
+func TestValidSubCommandUsage(t *testing.T) {
+
+	helpTriggers := []string{"-h", "--help"}
+
+	for _, helpTrigger := range helpTriggers {
+		// command
+		createCreate := exec.Command("go", "run", "tests/valid-registry.go", "create", helpTrigger)
+
+		// get output
+		if output, err := createCreate.Output(); err != nil {
+			fmt.Println("Error:", err)
+		} else {
+			values := []string{
+				"This command creates a React component of a given type and output component files in a project directory.",
+
+				"Usage:",
+				"reactor <name> <version> [flags]",
+
+				"Arguments: ",
+				"name                          name of the component to create",
+				"version                       version of the component",
+
+				"Flags: ",
+				"-d, --dir                     output directory of the component files",
+				"-h, --help                    displays usage information of the application or a command",
+				"--timeout                     operation timeout in seconds",
+				"-t, --type                    type of the component to create",
+				"-v, --verbose                 display logs while creating the component files",
 			}
 
 			for _, value := range values {

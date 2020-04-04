@@ -47,7 +47,7 @@ In the above example, `create` is a sub-command. The `<name>` placeholder is for
 
 ## How to configure?
 #### Step 1: executable, version and description setup
-First, we need to specify the **name of the executable** file. This value is same as your root command name. You can use [**`os.Executable`**](https://golang.org/pkg/os/#Executable) function to get the name of the executable. Normally, you just specify the name of your package because when the user install your module using `go get` command, Go creates an executable file with the name same as your package name.
+First, we need to specify the **name of the executable** file. This value is same as your root-command name. You can use [**`os.Executable`**](https://golang.org/pkg/os/#Executable) function to get the name of the executable. Normally, you just specify the name of your package because when the user install your module using `go get` command, Go creates an executable file with the name same as your package name.
 
 Then we need to set the **version** and the **description** of our CLI application. This version will be displayed with the `--version` flag (_or `version` sub-command_) and description will be displayed with `--help` flag (_or `help` sub-command_).
 
@@ -58,7 +58,7 @@ func main() {
     commando.
         SetExecutableName("reactor").
         SetVersion("v1.0.0").
-	SetDescription("This CLI tool helps you create and manage ReactJS projects.")
+    SetDescription("This CLI tool helps you create and manage ReactJS projects.")
 }
 ```
 
@@ -93,10 +93,14 @@ The `SetDescription` and `SetShortDescription` method takes a `string` argument 
 ```go
 commando.
     Register("<sub-command>").
-    AddArgument("<name>", "<description>", <isRequired>)
+    AddArgument("<name>", "<description>", "<default-value>")
 ```
 
-The `AddArgument` method registers an argument with the command. The first argument is the name of the argument and the second argument is the description of that argument. The third argument is a `bool` value indicating whether this argument is required to be provided by the user. If the value of a required argument is not provided by the user, an error message is displayed.
+The `AddArgument` method registers an argument with the command. The first argument is the name of the argument and the second argument is the description of that argument.
+
+The third argument is a `string` value which is the default-value of the argument. If user doesn't provide the value of this argument, this argument will get the value from the default-value. If the default-value is an empty string (""), then it becomes a **required argument**. If the value of a required argument is not provided by the user, an error message is displayed.
+
+You should register all arguments with a default-value first (_non-required arguments_). Since these are positional values, it is mandatory to do so, else you would get inappropriate results. 
 
 > If the argument is already registered, then registration of the argument is skipped without returning an error. You can configure arguments of the **root-command** by passing `nil` as an argument to the `Register()` function.
 
@@ -154,12 +158,13 @@ package main
 
 import (
     "fmt"
+
     "github.com/thatisuday/commando"
 )
 
 func main() {
-  
-    // set CLI version and description
+
+    // set CLI executable, version and description
     commando.
         SetExecutableName("reactor").
         SetVersion("v1.0.0").
@@ -169,8 +174,8 @@ func main() {
     // $ reactor <category>  --verbose|-V  --version|-v  --help|-h
     commando.
         Register(nil).
-        AddArgument("category", "category of the information to look for", true).      // required
-        AddFlag("verbose,V", "display log information ", commando.Bool, nil). // optional
+        AddArgument("category", "category of the information to look for", ""). // required
+        AddFlag("verbose,V", "display log information ", commando.Bool, nil).   // optional
         SetAction(func(args map[string]commando.ArgValue, flags map[string]commando.FlagValue) {
             // print arguments
             for k, v := range args {
@@ -189,8 +194,8 @@ func main() {
         Register("create").
         SetDescription("This command creates a React component of a given type and output component files in a project directory.").
         SetShortDescription("creates a React component").
-        AddArgument("name", "name of the component to create", true).                                // required
-        AddArgument("alias", "import alias of the component", false).                                // optional
+        AddArgument("name", "name of the component to create", "").                                  // required
+        AddArgument("version", "version of the component", "1.0.0").                                 // optional
         AddFlag("dir, d", "output directory of the component files", commando.String, nil).          // required
         AddFlag("type, t", "type of the component to create", commando.String, "simple_type").       // optional
         AddFlag("timeout", "operation timeout in seconds", commando.Int, 60).                        // optional
@@ -312,7 +317,7 @@ Flags:
    -v, --verbose                 display logs while creating the component files
 ```
 
-#### Executing the root command
+#### Executing the root-command
 ```
 $ reactor --verbose
 Error: value of the category argument can not be empty.
@@ -380,7 +385,7 @@ The example above is a clear demonstration of how a CLI application can be creat
 
 - Keep your argument names and flag names as simple as possible.
 - Try not to override the `--help` or `--version` flags and their short-names.
-- Do not configure the **root-command** unless necessary. You do not need to set an **action** function for the root command. If the action function is missing for the root-command, it won't generate any output or an error.
+- Do not configure the **root-command** unless necessary. You do not need to set an **action** function for the root-command. If the action function is missing for the root-command, it won't generate any output or an error.
 - Do not modify commands after `commando.Parse()` is called.
 
 Your code must be part of the `main` package like we have seen in the previous example. It's better if your work with the [**Go modules**] so that a user can install your application from anywhere on the system. A user can install the CLI application using `GO111MODULE=on go get "github.com/<username>/<module-name>"` command. Since your code is part of the `main` package, Go creates `<module-name>` binary executable file inside `GOBIN` directory that is supposed to be in the `PATH` of the system.

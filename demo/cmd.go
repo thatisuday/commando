@@ -8,7 +8,7 @@ import (
 
 func main() {
 
-	// set CLI version and description
+	// set CLI executable, version and description
 	commando.
 		SetExecutableName("reactor").
 		SetVersion("v1.0.0").
@@ -18,8 +18,8 @@ func main() {
 	// $ reactor <category>  --verbose|-V  --version|-v  --help|-h
 	commando.
 		Register(nil).
-		AddArgument("category", "category of the information to look for", true).      // required
-		AddFlag("verbose,V", "display log information ", commando.Bool, nil). // optional
+		AddArgument("category", "category of the information to look for", ""). // required
+		AddFlag("verbose,V", "display log information ", commando.Bool, nil).   // optional
 		SetAction(func(args map[string]commando.ArgValue, flags map[string]commando.FlagValue) {
 			// print arguments
 			for k, v := range args {
@@ -38,8 +38,8 @@ func main() {
 		Register("create").
 		SetDescription("This command creates a React component of a given type and output component files in a project directory.").
 		SetShortDescription("creates a React component").
-		AddArgument("name", "name of the component to create", true).                                // required
-		AddArgument("alias", "import alias of the component", false).                                // optional
+		AddArgument("name", "name of the component to create", "").                                  // required
+		AddArgument("version", "version of the component", "1.0.0").                                 // optional
 		AddFlag("dir, d", "output directory of the component files", commando.String, nil).          // required
 		AddFlag("type, t", "type of the component to create", commando.String, "simple_type").       // optional
 		AddFlag("timeout", "operation timeout in seconds", commando.Int, 60).                        // optional

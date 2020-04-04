@@ -299,8 +299,17 @@ func (cr *CommandRegistry) Parse(osArgs []string) {
 	// for each argument, validate the argument value
 	for name, arg := range c.Args {
 
-		// get value of the argument from the `result`
-		value := result.Args[name].Value
+		// get default-value and user-value of the argument from the `result`
+		defaultValue := result.Args[name].DefaultValue
+		userValue := result.Args[name].Value
+
+		// get final value
+		value := userValue
+		if len(userValue) == 0 {
+			value = defaultValue
+		}
+
+		/*------------*/
 
 		// if argument is required but value is missing, display an error message and exit the process
 		if arg.IsRequired && len(value) == 0 {
@@ -504,8 +513,8 @@ func (c *Command) SetShortDescription(shortDesc string) *Command {
 }
 
 // AddArgument registers an argument for a command.
-// When isRequired is true, a user needs to provide a value for this argument.
-func (c *Command) AddArgument(name string, desc string, isRequired bool) *Command {
+// When the defaultValue is an empty string, a user needs to provide a value for this argument.
+func (c *Command) AddArgument(name string, desc string, defaultValue string) *Command {
 
 	// (replace all whitespaces)
 	_name := strings.ReplaceAll(name, " ", "")
@@ -518,7 +527,7 @@ func (c *Command) AddArgument(name string, desc string, isRequired bool) *Comman
 	/*---------------------------*/
 
 	// register the argument with `clapper`
-	c.Carg.AddArg(_name)
+	c.Carg.AddArg(_name, defaultValue)
 
 	/*---------------------------*/
 
@@ -526,7 +535,7 @@ func (c *Command) AddArgument(name string, desc string, isRequired bool) *Comman
 	a := &Arg{
 		Name:       _name,
 		Desc:       desc,
-		IsRequired: isRequired,
+		IsRequired: defaultValue == "",
 	}
 
 	/*---------------------------*/
