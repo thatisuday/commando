@@ -93,8 +93,10 @@ type CommandRegistry struct {
 // AddCommand adds a command in the registry.
 func (cr *CommandRegistry) addCommand(name string) *Command {
 
+	_name := strings.ReplaceAll(name, " ", "") // remove whitespaces
+
 	// if command is already registered, return the command-config from the registry
-	if _c, ok := cr.Commands[name]; ok {
+	if _c, ok := cr.Commands[_name]; ok {
 		return _c
 	}
 
@@ -102,9 +104,9 @@ func (cr *CommandRegistry) addCommand(name string) *Command {
 
 	// create a command config
 	c := &Command{
-		Carg:   cr.registry.Register(name), // register the command with clapper and store the config-config
-		Name:   name,
-		IsRoot: name == rootCommandName,
+		Carg:   cr.registry.Register(_name), // register the command with clapper and store the config-config
+		Name:   _name,
+		IsRoot: _name == rootCommandName,
 		Args:   make(map[string]*Arg),
 		Flags:  make(map[string]*Flag),
 	}
@@ -112,7 +114,7 @@ func (cr *CommandRegistry) addCommand(name string) *Command {
 	/*---------------------------*/
 
 	// register a command config inside the registry
-	cr.Commands[name] = c
+	cr.Commands[_name] = c
 
 	/*---------------------------*/
 
@@ -138,7 +140,7 @@ func (cr *CommandRegistry) SetExecutableName(name string) *CommandRegistry {
 // This version will be printed with the `--version` flag on the root-command.
 func (cr *CommandRegistry) SetVersion(version string) *CommandRegistry {
 
-	cr.Version = version
+	cr.Version = strings.Trim(version, " ") // trim whitespaces
 
 	return cr
 }
@@ -147,7 +149,7 @@ func (cr *CommandRegistry) SetVersion(version string) *CommandRegistry {
 // This description will be printed with `--help` flag on the root-command.
 func (cr *CommandRegistry) SetDescription(desc string) *CommandRegistry {
 
-	cr.Desc = desc
+	cr.Desc = strings.Trim(desc, " ") // trim whitespaces
 
 	return cr
 }
@@ -500,14 +502,14 @@ type Command struct {
 
 // SetDescription sets the description for a command.
 func (c *Command) SetDescription(desc string) *Command {
-	c.Desc = desc
+	c.Desc = strings.Trim(desc, " ") // trim whitespaces
 
 	return c
 }
 
 // SetShortDescription sets the short-description for a command.
 func (c *Command) SetShortDescription(shortDesc string) *Command {
-	c.ShortDesc = shortDesc
+	c.ShortDesc = strings.Trim(shortDesc, " ") // trim whitespaces
 
 	return c
 }
@@ -533,9 +535,10 @@ func (c *Command) AddArgument(name string, desc string, defaultValue string) *Co
 
 	// create an argument config
 	a := &Arg{
-		Name:       _name,
-		Desc:       desc,
-		IsRequired: defaultValue == "",
+		Name:         _name,
+		Desc:         strings.Trim(desc, " "), // trim whitespaces
+		DefaultValue: defaultValue,
+		IsRequired:   defaultValue == "",
 	}
 
 	/*---------------------------*/
@@ -587,7 +590,7 @@ func (c *Command) AddFlag(flagNames string, desc string, dataType int, defaultVa
 	// check for correct data type of `defaultValue`
 	switch dataType {
 	case Bool:
-		_defaultValue = "true"
+		_defaultValue = "false"
 		_isRequired = false
 	case Int:
 		if defaultValue == nil {
@@ -607,13 +610,18 @@ func (c *Command) AddFlag(flagNames string, desc string, dataType int, defaultVa
 			_isRequired = true
 		} else {
 			// check if `defaultValue` is a `string`
-			if _, ok := defaultValue.(string); !ok {
+			if val, ok := defaultValue.(string); !ok {
 				fmt.Printf("Error: value of the --%s flag must be a string or nil.\n", name)
 				os.Exit(0)
+			} else {
+				// check for empty string value
+				if strings.ReplaceAll(val, " ", "") == "" {
+					_isRequired = true
+				} else {
+					_defaultValue = fmt.Sprintf("%v", defaultValue.(string))
+					_isRequired = false
+				}
 			}
-
-			_defaultValue = fmt.Sprintf("%v", defaultValue.(string))
-			_isRequired = false
 		}
 	default:
 		fmt.Printf("Error: invalid data type provided for the --%s flag.\n", name)
@@ -629,11 +637,13 @@ func (c *Command) AddFlag(flagNames string, desc string, dataType int, defaultVa
 
 	// create a flag config
 	f := &Flag{
-		Name:       name,
-		ShortName:  shortName,
-		Desc:       desc,
-		DataType:   dataType,
-		IsRequired: _isRequired,
+		Name:            name,
+		ShortName:       shortName,
+		Desc:            strings.Trim(desc, " "), // trim whitespaces
+		DataType:        dataType,
+		DefaultValue:    _defaultValue,
+		DefaultValueRaw: defaultValue,
+		IsRequired:      _isRequired,
 	}
 
 	/*---------------------------*/
@@ -663,9 +673,10 @@ func (c *Command) SetAction(action func(map[string]ArgValue, map[string]FlagValu
 
 // Arg defines the configuration of an argument.
 type Arg struct {
-	Name       string
-	Desc       string
-	IsRequired bool
+	Name         string
+	Desc         string
+	DefaultValue string
+	IsRequired   bool
 }
 
 // ArgValue represents an argument value to pass as an argument in action function.
@@ -678,11 +689,13 @@ type ArgValue struct {
 
 // Flag defines the configuration of a flag.
 type Flag struct {
-	Name       string
-	ShortName  string
-	Desc       string
-	DataType   int
-	IsRequired bool
+	Name            string
+	ShortName       string
+	Desc            string
+	DataType        int
+	DefaultValue    string
+	DefaultValueRaw interface{}
+	IsRequired      bool
 }
 
 // FlagValue represents a flag value to pass as an argument in action function.

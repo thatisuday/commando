@@ -22,7 +22,7 @@ func main() {
 		registry.
 			Register(nil).
 			AddArgument("category", "category of the information to look for", ""). // required
-			AddFlag("verbose,V", "display log information ", commando.Bool, nil).   // optional
+			AddFlag("verbose,V", "display log information", commando.Bool, nil).    // optional
 			SetAction(func(args map[string]commando.ArgValue, flags map[string]commando.FlagValue) {
 				// print arguments
 				for k, v := range args {

@@ -288,9 +288,9 @@ func TestValidRootCommandUsage(t *testing.T) {
 				"category                      category of the information to look for",
 
 				"Flags: ",
-				"-h, --help                    displays usage information of the application or a command",
-				"-V, --verbose                 display log information",
-				"-v, --version                 displays version number",
+				"-h, --help                    displays usage information of the application or a command (default: false)",
+				"-V, --verbose                 display log information (default: false)",
+				"-v, --version                 displays version number (default: false)",
 			}
 
 			for _, value := range values {
@@ -323,14 +323,14 @@ func TestValidSubCommandUsage(t *testing.T) {
 
 				"Arguments: ",
 				"name                          name of the component to create",
-				"version                       version of the component",
+				"version                       version of the component (default: 1.0.0)",
 
 				"Flags: ",
 				"-d, --dir                     output directory of the component files",
 				"-h, --help                    displays usage information of the application or a command",
-				"--timeout                     operation timeout in seconds",
-				"-t, --type                    type of the component to create",
-				"-v, --verbose                 display logs while creating the component files",
+				"--timeout                     operation timeout in seconds (default: 60)",
+				"-t, --type                    type of the component to create (default: simple_type)",
+				"-v, --verbose                 display logs while creating the component files (default: false)",
 			}
 
 			for _, value := range values {

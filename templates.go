@@ -24,7 +24,7 @@ Commands: {{ range $k, $v := . }}
 {{- with .Args }}
 
 Arguments: {{ range $k, $v := . }}
-   {{ printf "%-30v" $k }}{{ $v.Desc }}
+   {{ printf "%-30v" $k }}{{ $v.Desc }} {{ if $v.DefaultValue }}(default: {{ $v.DefaultValue }}){{ end }}
    {{- end -}}
 {{- end -}}
 
@@ -36,7 +36,7 @@ Flags: {{ range $k, $v := . }}
    {{ if $v.ShortName -}}-{{ $v.ShortName }}, {{ printf "--%-24v" $k -}}
    {{ else -}}{{- printf "--%-28v" $k -}}
    {{- end -}}
-   {{- $v.Desc }}
+   {{- $v.Desc }} {{ if $v.DefaultValue }}(default: {{ $v.DefaultValue }}){{ end }}
    {{- end -}}
 {{- end -}}
 

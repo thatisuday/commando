@@ -275,17 +275,17 @@ Usage:
 Commands: 
    build                         creates build artifacts
    create                        creates a React component
-   help                          display usage informationn
+   help                          displays usage informationn
    serve                         starts a development server
-   version                       display version number
+   version                       displays version number
 
 Arguments: 
-   category                      category of the information to look for
+   category                      category of the information to look for 
 
 Flags: 
-   -h, --help                    display usage information of the application or a command
-   -V, --verbose                 display log information 
-   -v, --version                 display version number
+   -h, --help                    displays usage information of the application or a command (default: false)
+   -V, --verbose                 display log information  (default: false)
+   -v, --version                 displays version number (default: false)
 ```
 
 #### Version of the CLI application
@@ -308,15 +308,15 @@ Usage:
    reactor <name> <version> [flags]
 
 Arguments: 
-   name                          name of the component to create
-   version                       version of the component
+   name                          name of the component to create 
+   version                       version of the component (default: 1.0.0)
 
 Flags: 
-   -d, --dir                     output directory of the component files
-   -h, --help                    displays usage information of the application or a command
-   --timeout                     operation timeout in seconds
-   -t, --type                    type of the component to create
-   -v, --verbose                 display logs while creating the component files
+   -d, --dir                     output directory of the component files 
+   -h, --help                    displays usage information of the application or a command (default: false)
+   --timeout                     operation timeout in seconds (default: 60)
+   -t, --type                    type of the component to create (default: simple_type)
+   -v, --verbose                 display logs while creating the component files (default: false)
 ```
 
 #### Executing the root-command
