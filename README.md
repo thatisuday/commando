@@ -60,7 +60,7 @@ func main() {
     commando.
         SetExecutableName("reactor").
         SetVersion("v1.0.0").
-    SetDescription("This CLI tool helps you create and manage ReactJS projects.")
+        SetDescription("This CLI tool helps you create and manage ReactJS projects.")
 }
 ```
 
@@ -81,9 +81,9 @@ The `*commando.Command` object is a struct and it provides `SetDescription`, `Ad
 #### Step 3: Set a description of a sub-command
 ```go
 commando.
-    Register("<sub-command>").
-    SetDescription("<sub-command-description>")
-    SetShortDescription("<sub-command-short-description>")
+  Register("<sub-command>").
+  SetDescription("<sub-command-description>")
+  SetShortDescription("<sub-command-short-description>")
 ```
 
 The `SetDescription` and `SetShortDescription` method takes a `string` argument tp set the long and a short description of the sub-command and returns the `*commando.Command` object of the same command. These descriptions are printed when user executes the `$ reactor <sub-command> --help` command.
@@ -94,8 +94,8 @@ The `SetDescription` and `SetShortDescription` method takes a `string` argument 
 #### Step 4: Add an argument
 ```go
 commando.
-    Register("<sub-command>").
-    AddArgument("<name>", "<description>", "<default-value>")
+  Register("<sub-command>").
+  AddArgument("<name>", "<description>", "<default-value>")
 ```
 
 The `AddArgument` method registers an argument with the command. The first argument is the name of the argument and the second argument is the description of that argument.
@@ -109,8 +109,8 @@ You should register all arguments with a default-value first (_non-required argu
 #### Step 5: Add a flag
 ```go
 commando.
-    Register("<sub-command>").
-    AddFlag("<long-name>,<short-name>", "<description>", <dataType>, <defaultValue>).
+  Register("<sub-command>").
+  AddFlag("<long-name>,<short-name>", "<description>", <dataType>, <defaultValue>).
 ```
 
 The `AddFlag` method registers a flag with the command. The first argument is `string` value containing the long-name and the short-name of the flag separated by a comma. For example, `dir,d` is a valid argument value for `--dir` and `-d` flags. You can skip the short-name registration if you do not need one by providing only long-name value, like `dir`.
@@ -126,10 +126,10 @@ The last argument is the **default-value** of the flag. The value of this argume
 #### Step 6: Register an action
 ```go
 commando.
-    Register("<sub-command>").
-    SetAction(func(args map[string]commando.ArgValue, flags map[string]commando.FlagValue) {
-        
-    })
+  Register("<sub-command>").
+  SetAction(func(args map[string]commando.ArgValue, flags map[string]commando.FlagValue) {
+      
+  })
 ```
 
 The `SetAction` function registers a callback function that will be executed when the root-command or the sub-command is executed by the user. This function is called with the argument values and the flag values provided by the user. If the required argument or a required flag is not provided by the user, this function won't be executed and an error message is shown to the user.
