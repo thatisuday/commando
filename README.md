@@ -91,7 +91,7 @@ The `SetDescription` and `SetShortDescription` method takes a `string` argument 
 > You can set a description of the **root-command** by passing `nil` as an argument to the `Register()` function.
 
 
-#### Step 3: Add an argument
+#### Step 4: Add an argument
 ```go
 commando.
     Register("<sub-command>").
@@ -106,7 +106,7 @@ You should register all arguments with a default-value first (_non-required argu
 
 > If the argument is already registered, then registration of the argument is skipped without returning an error. You can configure arguments of the **root-command** by passing `nil` as an argument to the `Register()` function.
 
-#### Step 4: Add a flag
+#### Step 5: Add a flag
 ```go
 commando.
     Register("<sub-command>").
@@ -123,7 +123,7 @@ The last argument is the **default-value** of the flag. The value of this argume
 
 > If the flag is already registered, then registration of the flag is skipped without returning an error. You should avoid using the same short-name for multiple flags. You can configure flags of the **root-command** by passing `nil` as an argument to the `Register()` function.
 
-#### Step 5: Register an action
+#### Step 6: Register an action
 ```go
 commando.
     Register("<sub-command>").
@@ -140,7 +140,7 @@ The second argument is a `map` that contains the flag values. The keys of this m
 
 The data-type of the `Value` field of the `ArgValue` type is `string`. However, the data-type of the `FlagValue` type is an empty interface `interface{}`. The concrete value of this field can be a `bool`, an `int` or a `string` based on the data-type specified in the flag registration. You should manually extract the concrete value using [**type-assertion**](https://medium.com/rungo/interfaces-in-go-ab1601159b3a#4231). The `FlagValue` also provides `GetBool`, `GetInt` and `GetString` methods to return the flag-value in the correct format. 
 
-#### Step 6: Parse the command-line arguments
+#### Step 7: Parse the command-line arguments
 ```go
 commando.Parse(nil)
 ```
@@ -159,102 +159,102 @@ You can also pass a custom list of command-line arguments. In this case, Command
 package main
 
 import (
-    "fmt"
+  "fmt"
 
-    "github.com/thatisuday/commando"
+  "github.com/thatisuday/commando"
 )
 
 func main() {
 
-    // set CLI executable, version and description
-    commando.
-        SetExecutableName("reactor").
-        SetVersion("v1.0.0").
-        SetDescription("Reactor is a command-line tool to generate ReactJS projects.\nIt helps you create components, write test cases, start a development server and much more.")
+  // set CLI executable, version and description
+  commando.
+    SetExecutableName("reactor").
+    SetVersion("v1.0.0").
+    SetDescription("Reactor is a command-line tool to generate ReactJS projects.\nIt helps you create components, write test cases, start a development server and much more.")
 
-    // configure the root-command
-    // $ reactor <category>  --verbose|-V  --version|-v  --help|-h
-    commando.
-        Register(nil).
-        AddArgument("category", "category of the information to look for", ""). // required
-        AddFlag("verbose,V", "display log information ", commando.Bool, nil).   // optional
-        SetAction(func(args map[string]commando.ArgValue, flags map[string]commando.FlagValue) {
-            // print arguments
-            for k, v := range args {
-                fmt.Printf("arg -> %v: %v(%T)\n", k, v.Value, v.Value)
-            }
+  // configure the root-command
+  // $ reactor <category>  --verbose|-V  --version|-v  --help|-h
+  commando.
+    Register(nil).
+    AddArgument("category", "category of the information to look for", ""). // required
+    AddFlag("verbose,V", "display log information ", commando.Bool, nil).   // optional
+    SetAction(func(args map[string]commando.ArgValue, flags map[string]commando.FlagValue) {
+      // print arguments
+      for k, v := range args {
+        fmt.Printf("arg -> %v: %v(%T)\n", k, v.Value, v.Value)
+      }
 
-            // print flags
-            for k, v := range flags {
-                fmt.Printf("flag -> %v: %v(%T)\n", k, v.Value, v.Value)
-            }
-        })
+      // print flags
+      for k, v := range flags {
+        fmt.Printf("flag -> %v: %v(%T)\n", k, v.Value, v.Value)
+      }
+    })
 
-    // register `create` sub-command
-    // $ reactor create <name> [type]  --dir|-d <dir>  --type|-t [type]  --timeout [timeout]  --verbose|-v  --help|-h
-    commando.
-        Register("create").
-        SetDescription("This command creates a React component of a given type and output component files in a project directory.").
-        SetShortDescription("creates a React component").
-        AddArgument("name", "name of the component to create", "").                                  // required
-        AddArgument("version", "version of the component", "1.0.0").                                 // optional
-        AddFlag("dir, d", "output directory of the component files", commando.String, nil).          // required
-        AddFlag("type, t", "type of the component to create", commando.String, "simple_type").       // optional
-        AddFlag("timeout", "operation timeout in seconds", commando.Int, 60).                        // optional
-        AddFlag("verbose,v", "display logs while creating the component files", commando.Bool, nil). // optional
-        SetAction(func(args map[string]commando.ArgValue, flags map[string]commando.FlagValue) {
-            // print arguments
-            for k, v := range args {
-                fmt.Printf("arg -> %v: %v(%T)\n", k, v.Value, v.Value)
-            }
+  // register `create` sub-command
+  // $ reactor create <name> [type]  --dir|-d <dir>  --type|-t [type]  --timeout [timeout]  --verbose|-v  --help|-h
+  commando.
+    Register("create").
+    SetDescription("This command creates a React component of a given type and output component files in a project directory.").
+    SetShortDescription("creates a React component").
+    AddArgument("name", "name of the component to create", "").                                  // required
+    AddArgument("version", "version of the component", "1.0.0").                                 // optional
+    AddFlag("dir, d", "output directory of the component files", commando.String, nil).          // required
+    AddFlag("type, t", "type of the component to create", commando.String, "simple_type").       // optional
+    AddFlag("timeout", "operation timeout in seconds", commando.Int, 60).                        // optional
+    AddFlag("verbose,v", "display logs while creating the component files", commando.Bool, nil). // optional
+    SetAction(func(args map[string]commando.ArgValue, flags map[string]commando.FlagValue) {
+      // print arguments
+      for k, v := range args {
+        fmt.Printf("arg -> %v: %v(%T)\n", k, v.Value, v.Value)
+      }
 
-            // print flags
-            for k, v := range flags {
-                fmt.Printf("flag -> %v: %v(%T)\n", k, v.Value, v.Value)
-            }
-        })
+      // print flags
+      for k, v := range flags {
+        fmt.Printf("flag -> %v: %v(%T)\n", k, v.Value, v.Value)
+      }
+    })
 
-    // register `serve` sub-command
-    // $ reactor serve --verbose|-v  --help|-h
-    commando.
-        Register("serve").
-        SetDescription("This command starts the Webpack dev-server on an available port.").
-        SetShortDescription("starts a development server").
-        AddFlag("verbose,v", "display logs while serving the project", commando.Bool, nil). // optional
-        SetAction(func(args map[string]commando.ArgValue, flags map[string]commando.FlagValue) {
-            // print arguments
-            for k, v := range args {
-                fmt.Printf("arg -> %v: %v(%T)\n", k, v.Value, v.Value)
-            }
+  // register `serve` sub-command
+  // $ reactor serve --verbose|-v  --help|-h
+  commando.
+    Register("serve").
+    SetDescription("This command starts the Webpack dev-server on an available port.").
+    SetShortDescription("starts a development server").
+    AddFlag("verbose,v", "display logs while serving the project", commando.Bool, nil). // optional
+    SetAction(func(args map[string]commando.ArgValue, flags map[string]commando.FlagValue) {
+      // print arguments
+      for k, v := range args {
+        fmt.Printf("arg -> %v: %v(%T)\n", k, v.Value, v.Value)
+      }
 
-            // print flags
-            for k, v := range flags {
-                fmt.Printf("flag -> %v: %v(%T)\n", k, v.Value, v.Value)
-            }
-        })
+      // print flags
+      for k, v := range flags {
+        fmt.Printf("flag -> %v: %v(%T)\n", k, v.Value, v.Value)
+      }
+    })
 
-    // register `build` sub-command
-    // $ reactor build  --dir|-d <dir>  --verbose|-v  --help|-h
-    commando.
-        Register("build").
-        SetDescription("This command builds the project with Webpack and outputs the build files in the given directory.").
-        SetShortDescription("creates build artifacts").
-        AddFlag("dir,d", "output directory of the build files", commando.String, nil).      // required
-        AddFlag("verbose,v", "display logs while serving the project", commando.Bool, nil). // optional
-        SetAction(func(args map[string]commando.ArgValue, flags map[string]commando.FlagValue) {
-            // print arguments
-            for k, v := range args {
-                fmt.Printf("arg -> %v: %v(%T)\n", k, v.Value, v.Value)
-            }
+  // register `build` sub-command
+  // $ reactor build  --dir|-d <dir>  --verbose|-v  --help|-h
+  commando.
+    Register("build").
+    SetDescription("This command builds the project with Webpack and outputs the build files in the given directory.").
+    SetShortDescription("creates build artifacts").
+    AddFlag("dir,d", "output directory of the build files", commando.String, nil).      // required
+    AddFlag("verbose,v", "display logs while serving the project", commando.Bool, nil). // optional
+    SetAction(func(args map[string]commando.ArgValue, flags map[string]commando.FlagValue) {
+      // print arguments
+      for k, v := range args {
+        fmt.Printf("arg -> %v: %v(%T)\n", k, v.Value, v.Value)
+      }
 
-            // print flags
-            for k, v := range flags {
-                fmt.Printf("flag -> %v: %v(%T)\n", k, v.Value, v.Value)
-            }
-        })
+      // print flags
+      for k, v := range flags {
+        fmt.Printf("flag -> %v: %v(%T)\n", k, v.Value, v.Value)
+      }
+    })
 
-    // parse command-line arguments from the STDIN
-    commando.Parse(nil)
+  // parse command-line arguments from the STDIN
+  commando.Parse(nil)
 }
 ```
 
@@ -305,15 +305,15 @@ $ reactor create -h
 This command creates a React component of a given type and output component files in a project directory.
 
 Usage:
-   reactor <name> <type> [flags]
+   reactor <name> <version> [flags]
 
 Arguments: 
    name                          name of the component to create
-   alias                         import alias of the component
+   version                       version of the component
 
 Flags: 
    -d, --dir                     output directory of the component files
-   -h, --help                    display usage information of the application or a command
+   -h, --help                    displays usage information of the application or a command
    --timeout                     operation timeout in seconds
    -t, --type                    type of the component to create
    -v, --verbose                 display logs while creating the component files
@@ -361,25 +361,25 @@ Oops! Since we have specified that the value of the `--timeout` flag must be an 
 ```
 $ reactor create my-service -t service --dir ./service/my-service --timeout 10    
 arg -> name: my-service(string)
-arg -> alias: (string)
-flag -> type: service(string)
-flag -> dir: ./service/my-service(string)
+arg -> version: 1.0.0(string)
 flag -> timeout: 10(int)
 flag -> verbose: false(bool)
 flag -> help: false(bool)
-```
-
-Here, the value of the `alias` argument is empty because it is an optional argument and a user did not provide any value for it. Since it is an optional argument, Commando did not print any errors.
-
-```
-$ reactor create my-service services/my-service -t service --dir=./service/my-service --timeout 10 -v
-arg -> name: my-service(string)
-arg -> alias: services/my-service(string)
-flag -> type: service(string)
 flag -> dir: ./service/my-service(string)
-flag -> timeout: 10(int)
+flag -> type: service(string)
+```
+
+Here, the value of the `version` argument the default value we provided earlier since the user did not provide any value for it. Also, since it is an optional argument, Commando did not print any errors.
+
+```
+$ reactor create my-service 2.0.5 -t service --dir=./service/my-service --timeout 10 -v
+arg -> name: my-service(string)
+arg -> version: 2.0.5(string)
 flag -> verbose: true(bool)
 flag -> help: false(bool)
+flag -> dir: ./service/my-service(string)
+flag -> type: service(string)
+flag -> timeout: 10(int)
 ```
 
 ## How to create a CLI application?
