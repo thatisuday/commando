@@ -5,6 +5,9 @@ Commando helps you create beautiful CLI applications with ease. It parses [**"ge
 
 > This library uses [**`clapper`**](https://github.com/thatisuday/clapper) package to parse command-line arguments. Visit the documentation of this package to understand supported **arguments** and **flag** patterns.
 
+## Documentation
+[**pkg.go.dev**](https://pkg.go.dev/github.com/thatisuday/clapper)
+
 ## Installation
 ```
 $ go get -u "github.com/thatisuday/commando"
@@ -24,7 +27,6 @@ $ reactor -h
 In the example above, the `reactor` alone is the **root-command**. Here, the `--version` and `-v` are flags. The `--version` is a long flag name and `-v` is a short flag name. The `-v` is an alias for `--version`. Similarly `--help` and `-h` are flags.
 
 > Commando adds `--version` and `--help` flags (_along with their aliases_) automatically for the root-command.
-
 
 #### Sub command
 ```
@@ -388,4 +390,6 @@ The example above is a clear demonstration of how a CLI application can be creat
 - Do not configure the **root-command** unless necessary. You do not need to set an **action** function for the root-command. If the action function is missing for the root-command, it won't generate any output or an error.
 - Do not modify commands after `commando.Parse()` is called.
 
-Your code must be part of the `main` package like we have seen in the previous example. It's better if your work with the [**Go modules**] so that a user can install your application from anywhere on the system. A user can install the CLI application using `GO111MODULE=on go get "github.com/<username>/<module-name>"` command. Since your code is part of the `main` package, Go creates `<module-name>` binary executable file inside `GOBIN` directory that is supposed to be in the `PATH` of the system.
+Your code must be part of the `main` package like we have seen in the previous example. It's better if your work with the [**Go modules**] so that a user can install your application from anywhere on the system.
+
+A user can install the CLI application using `GO111MODULE=on go get "github.com/<username>/<module-name>"` command. Since your code is part of the `main` package, Go creates `<module-name>` binary executable file inside `GOBIN` directory that is supposed to be in the `PATH` of the system.
