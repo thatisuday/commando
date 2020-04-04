@@ -5,6 +5,9 @@ Commando helps you create beautiful CLI applications with ease. It parses [**"ge
 
 > This library uses [**`clapper`**](https://github.com/thatisuday/clapper) package to parse command-line arguments. Visit the documentation of this package to understand supported **arguments** and **flag** patterns.
 
+## Documentation
+[**pkg.go.dev**](https://pkg.go.dev/github.com/thatisuday/clapper)
+
 ## Installation
 ```
 $ go get -u "github.com/thatisuday/commando"
@@ -24,7 +27,6 @@ $ reactor -h
 In the example above, the `reactor` alone is the **root-command**. Here, the `--version` and `-v` are flags. The `--version` is a long flag name and `-v` is a short flag name. The `-v` is an alias for `--version`. Similarly `--help` and `-h` are flags.
 
 > Commando adds `--version` and `--help` flags (_along with their aliases_) automatically for the root-command.
-
 
 #### Sub command
 ```
@@ -170,7 +172,7 @@ func main() {
     commando.
         Register(nil).
         AddArgument("category", "category of the information to look for", true).      // required
-        AddFlag("verbose,V", "display log information ", commando.Bool, nil). // optional
+        AddFlag("verbose,V", "display log information ", commando.Bool, nil).          // optional
         SetAction(func(args map[string]commando.ArgValue, flags map[string]commando.FlagValue) {
             // print arguments
             for k, v := range args {
