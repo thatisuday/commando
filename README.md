@@ -6,7 +6,7 @@ Commando helps you create beautiful CLI applications with ease. It parses [**"ge
 > This library uses [**`clapper`**](https://github.com/thatisuday/clapper) package to parse command-line arguments. Visit the documentation of this package to understand supported **arguments** and **flag** patterns.
 
 ## Documentation
-[**pkg.go.dev**](https://pkg.go.dev/github.com/thatisuday/clapper)
+[**pkg.go.dev**](https://pkg.go.dev/github.com/thatisuday/commando)
 
 ## Installation
 ```
