@@ -68,6 +68,12 @@ var (
 	versionFlagDesc         = "displays version number"
 )
 
+// event names
+const (
+	EventVersion = "version"
+	EventHelp    = "help"
+)
+
 /********************************************/
 
 // CommandRegistry holds the registered command configurations.
@@ -85,6 +91,9 @@ type CommandRegistry struct {
 
 	// registered command configurations
 	Commands map[string]*Command
+
+	// event listener for version, help etc. events
+	EventListener func(string)
 
 	// registry to hold `clapper` registry object
 	registry clapper.Registry
@@ -150,6 +159,19 @@ func (cr *CommandRegistry) SetVersion(version string) *CommandRegistry {
 func (cr *CommandRegistry) SetDescription(desc string) *CommandRegistry {
 
 	cr.Desc = strings.Trim(desc, " ") // trim whitespaces
+
+	return cr
+}
+
+// SetEventListener registers a callback function with the registry.
+// This function is executed with an event name when the user uses `--help` or `--version` flag.
+// If this function is already registered, it won't get registered again.
+func (cr *CommandRegistry) SetEventListener(listener func(string)) *CommandRegistry {
+
+	// set listener if not set before
+	if cr.EventListener == nil {
+		cr.EventListener = listener
+	}
 
 	return cr
 }
@@ -423,6 +445,13 @@ func (cr *CommandRegistry) PrintVersion() {
 		// compile and output template result
 		tmpl.Execute(os.Stdout, templateData)
 	}
+
+	/*----------------*/
+
+	// emit `version` event if listener is available
+	if cr.EventListener != nil {
+		cr.EventListener(EventVersion)
+	}
 }
 
 // PrintHelp prints the usage of the command or CLI application.
@@ -464,6 +493,13 @@ func (cr *CommandRegistry) PrintHelp(c *Command) {
 	} else {
 		// compile and output template result
 		tmpl.Execute(os.Stdout, templateData)
+	}
+
+	/*----------------*/
+
+	// emit `help` event if listener is available
+	if cr.EventListener != nil {
+		cr.EventListener(EventHelp)
 	}
 }
 
@@ -656,7 +692,7 @@ func (c *Command) AddFlag(flagNames string, desc string, dataType int, defaultVa
 	return c
 }
 
-// SetAction registers a function to the command configuration that
+// SetAction registers a callback function with a command configuration that
 // will execute after command-line arguments are parsed.
 // If an action function is already registered with a command, it won't get registered again.
 func (c *Command) SetAction(action func(map[string]ArgValue, map[string]FlagValue)) *Command {

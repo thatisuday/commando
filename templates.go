@@ -5,7 +5,7 @@ var usageTemplate = `
 
 Usage:
    {{ .Executable }} {{ with .Args -}}
-   {{ range $k := . }}<{{ $k.Name }}> {{ end }}{{ end }}[flags]{{- if .IsRootCommand }}{{ if .Commands }}
+   {{ range $k, $v := . }}{{ if $v.IsRequired }}<{{ $v.Name }}>{{ else }}[{{ $v.Name }}]{{ end }} {{ end }}{{ end }}[flags]{{- if .IsRootCommand }}{{ if .Commands }}
    {{ .Executable }} <command> [flags]{{ end }}{{ end -}}
 
 

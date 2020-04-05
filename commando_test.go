@@ -83,8 +83,6 @@ func TestUnknownCommand(t *testing.T) {
 	if output, err := cmdPrint.Output(); err != nil {
 		fmt.Println("Error:", err)
 	} else {
-		//fmt.Printf("Output: %s\n", output)
-
 		if !strings.Contains(fmt.Sprintf("%s", output), "Error: print is not a valid command.") {
 			t.Fail()
 		}
@@ -98,10 +96,10 @@ func TestUnsupportedFlag(t *testing.T) {
 
 	for _, flag := range unsupportedFlags {
 		// command
-		rootCreate := exec.Command("go", "run", "tests/valid-registry.go", flag)
+		cmdRoot := exec.Command("go", "run", "tests/valid-registry.go", flag)
 
 		// get output
-		if output, err := rootCreate.Output(); err != nil {
+		if output, err := cmdRoot.Output(); err != nil {
 			fmt.Println("Error:", err)
 		} else {
 			if !strings.Contains(fmt.Sprintf("%s", output), fmt.Sprintf("Error: %s is not a supported flag.", flag)) {
@@ -114,10 +112,10 @@ func TestUnsupportedFlag(t *testing.T) {
 // missing argument value of a required argument must display an error
 func TestMissingArgument(t *testing.T) {
 	// command
-	rootCreate := exec.Command("go", "run", "tests/valid-registry.go")
+	cmdRoot := exec.Command("go", "run", "tests/valid-registry.go")
 
 	// get output
-	if output, err := rootCreate.Output(); err != nil {
+	if output, err := cmdRoot.Output(); err != nil {
 		fmt.Println("Error:", err)
 	} else {
 		if !strings.Contains(fmt.Sprintf("%s", output), "Error: value of the category argument can not be empty.") {
@@ -128,10 +126,10 @@ func TestMissingArgument(t *testing.T) {
 	/*----------------*/
 
 	// command
-	createCreate := exec.Command("go", "run", "tests/valid-registry.go", "create")
+	cmdCreate := exec.Command("go", "run", "tests/valid-registry.go", "create")
 
 	// get output
-	if output, err := createCreate.Output(); err != nil {
+	if output, err := cmdCreate.Output(); err != nil {
 		fmt.Println("Error:", err)
 	} else {
 		if !strings.Contains(fmt.Sprintf("%s", output), "Error: value of the name argument can not be empty.") {
@@ -143,10 +141,10 @@ func TestMissingArgument(t *testing.T) {
 // missing flag value of a required flag must display an error
 func TestMissingFlag(t *testing.T) {
 	// command
-	createCreate := exec.Command("go", "run", "tests/valid-registry.go", "create", "my-service")
+	cmdCreate := exec.Command("go", "run", "tests/valid-registry.go", "create", "my-service")
 
 	// get output
-	if output, err := createCreate.Output(); err != nil {
+	if output, err := cmdCreate.Output(); err != nil {
 		fmt.Println("Error:", err)
 	} else {
 		if !strings.Contains(fmt.Sprintf("%s", output), "Error: value of the --dir flag can not be empty.") {
@@ -158,10 +156,10 @@ func TestMissingFlag(t *testing.T) {
 // wrong value of a flag must display an error
 func TestInvalidFlagValue(t *testing.T) {
 	// command
-	createCreate := exec.Command("go", "run", "tests/valid-registry.go", "create", "my-service", "-d", "./services/my-service", "--timeout", "10sec")
+	cmdCreate := exec.Command("go", "run", "tests/valid-registry.go", "create", "my-service", "-d", "./services/my-service", "--timeout", "10sec")
 
 	// get output
-	if output, err := createCreate.Output(); err != nil {
+	if output, err := cmdCreate.Output(); err != nil {
 		fmt.Println("Error:", err)
 	} else {
 		if !strings.Contains(fmt.Sprintf("%s", output), "Error: value of the --timeout flag must be an integer.") {
@@ -173,10 +171,10 @@ func TestInvalidFlagValue(t *testing.T) {
 // test if all values of a root-command are valid
 func TestValidRootCommand(t *testing.T) {
 	// command
-	createCreate := exec.Command("go", "run", "tests/valid-registry.go", "service")
+	cmdCreate := exec.Command("go", "run", "tests/valid-registry.go", "service")
 
 	// get output
-	if output, err := createCreate.Output(); err != nil {
+	if output, err := cmdCreate.Output(); err != nil {
 		fmt.Println("Error:", err)
 	} else {
 		values := []string{
@@ -197,10 +195,10 @@ func TestValidRootCommand(t *testing.T) {
 // test if default value of an argument is correct
 func TestDefaultArgValue(t *testing.T) {
 	// command
-	createCreate := exec.Command("go", "run", "tests/valid-registry.go", "create", "my-service", "-t", "service", "--dir=./service/my-service", "--timeout", "10", "-v")
+	cmdCreate := exec.Command("go", "run", "tests/valid-registry.go", "create", "my-service", "-t", "service", "--dir=./service/my-service", "--timeout", "10", "-v")
 
 	// get output
-	if output, err := createCreate.Output(); err != nil {
+	if output, err := cmdCreate.Output(); err != nil {
 		fmt.Println("Error:", err)
 	} else {
 		if !strings.Contains(fmt.Sprintf("%s", output), "arg -> version: 1.0.0(string)") {
@@ -212,10 +210,10 @@ func TestDefaultArgValue(t *testing.T) {
 // test if all values of a sub-command are valid
 func TestValidSubCommand(t *testing.T) {
 	// command
-	createCreate := exec.Command("go", "run", "tests/valid-registry.go", "create", "my-service", "1.0.0", "-t", "service", "--dir=./service/my-service", "--timeout", "10", "-v")
+	cmdCreate := exec.Command("go", "run", "tests/valid-registry.go", "create", "my-service", "1.0.0", "-t", "service", "--dir=./service/my-service", "--timeout", "10", "-v")
 
 	// get output
-	if output, err := createCreate.Output(); err != nil {
+	if output, err := cmdCreate.Output(); err != nil {
 		fmt.Println("Error:", err)
 	} else {
 		values := []string{
@@ -243,10 +241,10 @@ func TestValidVersion(t *testing.T) {
 
 	for _, versionTrigger := range versionTriggers {
 		// command
-		createCreate := exec.Command("go", "run", "tests/valid-registry.go", versionTrigger)
+		cmdCreate := exec.Command("go", "run", "tests/valid-registry.go", versionTrigger)
 
 		// get output
-		if output, err := createCreate.Output(); err != nil {
+		if output, err := cmdCreate.Output(); err != nil {
 			fmt.Println("Error:", err)
 		} else {
 			if !strings.Contains(fmt.Sprintf("%s", output), "Version: v1.0.0") {
@@ -263,10 +261,10 @@ func TestValidRootCommandUsage(t *testing.T) {
 
 	for _, helpTrigger := range helpTriggers {
 		// command
-		createCreate := exec.Command("go", "run", "tests/valid-registry.go", helpTrigger)
+		cmdCreate := exec.Command("go", "run", "tests/valid-registry.go", helpTrigger)
 
 		// get output
-		if output, err := createCreate.Output(); err != nil {
+		if output, err := cmdCreate.Output(); err != nil {
 			fmt.Println("Error:", err)
 		} else {
 			values := []string{
@@ -309,17 +307,17 @@ func TestValidSubCommandUsage(t *testing.T) {
 
 	for _, helpTrigger := range helpTriggers {
 		// command
-		createCreate := exec.Command("go", "run", "tests/valid-registry.go", "create", helpTrigger)
+		cmdCreate := exec.Command("go", "run", "tests/valid-registry.go", "create", helpTrigger)
 
 		// get output
-		if output, err := createCreate.Output(); err != nil {
+		if output, err := cmdCreate.Output(); err != nil {
 			fmt.Println("Error:", err)
 		} else {
 			values := []string{
 				"This command creates a React component of a given type and output component files in a project directory.",
 
 				"Usage:",
-				"reactor <name> <version> [flags]",
+				"reactor <name> [version] [flags]",
 
 				"Arguments: ",
 				"name                          name of the component to create",
@@ -338,6 +336,38 @@ func TestValidSubCommandUsage(t *testing.T) {
 					t.Fail()
 				}
 			}
+		}
+	}
+}
+
+// test if version and help events are working properly
+func TestEvents(t *testing.T) {
+
+	// test `version` event
+	cmdRootVersion := exec.Command("go", "run", "tests/valid-registry.go", "--version")
+	cmdRootVersion.Env = append(os.Environ(), "LISTEN_EVENTS=TRUE")
+
+	// get output
+	if output, err := cmdRootVersion.Output(); err != nil {
+		fmt.Println("Error:", err)
+	} else {
+		if !strings.Contains(fmt.Sprintf("%s", output), fmt.Sprintf("event-name: %s", EventVersion)) {
+			t.Fail()
+		}
+	}
+
+	/*--------------*/
+
+	// test `help` event
+	cmdRootHelp := exec.Command("go", "run", "tests/valid-registry.go", "--help")
+	cmdRootHelp.Env = append(os.Environ(), "LISTEN_EVENTS=TRUE")
+
+	// get output
+	if output, err := cmdRootHelp.Output(); err != nil {
+		fmt.Println("Error:", err)
+	} else {
+		if !strings.Contains(fmt.Sprintf("%s", output), fmt.Sprintf("event-name: %s", EventHelp)) {
+			t.Fail()
 		}
 	}
 }

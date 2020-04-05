@@ -12,7 +12,10 @@ func main() {
 	commando.
 		SetExecutableName("reactor").
 		SetVersion("v1.0.0").
-		SetDescription("Reactor is a command-line tool to generate ReactJS projects.\nIt helps you create components, write test cases, start a development server and much more.")
+		SetDescription("Reactor is a command-line tool to generate ReactJS projects.\nIt helps you create components, write test cases, start a development server and much more.").
+		SetEventListener(func(eventName string) {
+			fmt.Println("event-name: ", eventName)
+		})
 
 	// configure the root-command
 	// $ reactor <category>  --verbose|-V  --version|-v  --help|-h
