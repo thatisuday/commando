@@ -310,7 +310,7 @@ $ reactor create -h
 This command creates a React component of a given type and output component files in a project directory.
 
 Usage:
-   reactor <name> <version> [flags]
+   reactor <name> [version] [flags]
 
 Arguments: 
    name                          name of the component to create 
