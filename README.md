@@ -86,7 +86,7 @@ commando.
   SetShortDescription("<sub-command-short-description>")
 ```
 
-The [`SetDescription`](https://pkg.go.dev/github.com/thatisuday/commando?tab=doc#Command.SetDescription) and [`SetShortDescription`]((https://pkg.go.dev/github.com/thatisuday/commando?tab=doc#Command.SetShortDescription)) method takes a `string` argument tp set the long and a short description of the sub-command and returns the [`*commando.Command`](https://pkg.go.dev/github.com/thatisuday/commando?tab=doc#Command) object of the same command. These descriptions are printed when user executes the `$ reactor <sub-command> --help` command.
+The [`SetDescription`](https://pkg.go.dev/github.com/thatisuday/commando?tab=doc#Command.SetDescription) and [`SetShortDescription`](https://pkg.go.dev/github.com/thatisuday/commando?tab=doc#Command.SetShortDescription) method takes a `string` argument tp set the long and a short description of the sub-command and returns the [`*commando.Command`](https://pkg.go.dev/github.com/thatisuday/commando?tab=doc#Command) object of the same command. These descriptions are printed when user executes the `$ reactor <sub-command> --help` command.
 
 > You can set a description of the **root-command** by passing `nil` as an argument to the [`Register()`](https://pkg.go.dev/github.com/thatisuday/commando?tab=doc#Register) function.
 
