@@ -1,5 +1,5 @@
 # Commando
-Commando helps you create beautiful CLI applications with ease. It parses [**"getopt(3)"**](http://man7.org/linux/man-pages/man3/getopt.3.html) style command-line arguments, supports sub-command architecture, allows a short-name alias for flags and captures required and optional arguments. The motivation behind creating this library is to provide easy-to-use APIs to create simple command-line tools.
+Commando helps you create beautiful CLI applications with ease. It parses [**"getopt(3)"**](http://man7.org/linux/man-pages/man3/getopt.3.html) style command-line arguments, supports sub-command architecture, allows a short-name alias for flags and captures required & optional arguments. The motivation behind creating this library is to provide easy-to-use APIs to create simple command-line tools.
 
 ![logo](/assets/logo.png)
 
@@ -105,7 +105,7 @@ The [`AddArgument`](https://pkg.go.dev/github.com/thatisuday/commando?tab=doc#Co
 
 The third argument is a `string` value which is the default-value of the argument. If user doesn't provide the value of this argument, this argument will get the value from the default-value. If the default-value is an empty string (""), then it becomes a **required argument**. If the value of a required argument is not provided by the user, an error message is displayed.
 
-**You should register all required arguments first**. Since these are positional values, it is mandatory to do so, else you would get inappropriate results. 
+**You should register all optional arguments before the required arguments**. Since these are positional values, it is mandatory to do so, else you would get inappropriate results. 
 
 > If the argument is already registered, then registration of the argument is skipped without returning an error. You can configure arguments of the **root-command** by passing `nil` as an argument to the [`Register()`](https://pkg.go.dev/github.com/thatisuday/commando?tab=doc#Register) function.
 
@@ -393,6 +393,7 @@ The example above is a clear demonstration of how a CLI application can be creat
 - Keep your argument names and flag names as simple as possible.
 - Try not to override the `--help` or `--version` flags and their short-names.
 - Do not configure the **root-command** unless necessary. You do not need to set an **action** function for the root-command. If the action function is missing for the root-command, it won't generate any output or an error.
+- Register all optional arguments of a command before the required arguments.
 - Do not modify commands after `commando.Parse()` is called.
 
 Your code must be part of the `main` package like we have seen in the previous example. It's better if your work with the [**Go modules**] so that a user can install your application from anywhere on the system.
