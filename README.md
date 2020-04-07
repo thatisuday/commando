@@ -1,11 +1,11 @@
 # Commando
-
 ![logo](/assets/logo.png)
+
 Commando helps you create beautiful CLI applications with ease. It parses [**"getopt(3)"**](http://man7.org/linux/man-pages/man3/getopt.3.html) style command-line arguments, supports sub-command architecture, allows a short-name alias for flags and captures required & optional arguments. The motivation behind creating this library is to provide easy-to-use APIs to create simple command-line tools.
 
 > This library uses [**`clapper`**](https://github.com/thatisuday/clapper) package to parse command-line arguments. Visit the documentation of this package to understand supported **arguments** and **flag** patterns.
 
-![logo](/demo/asciinema.gif)
+![logo](/demo/reactor.gif)
 
 ## Documentation
 [**pkg.go.dev**](https://pkg.go.dev/github.com/thatisuday/commando)
