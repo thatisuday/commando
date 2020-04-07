@@ -272,8 +272,8 @@ func TestValidRootCommandUsage(t *testing.T) {
 				"It helps you create components, write test cases, start a development server and much more.",
 
 				"Usage:",
-				"reactor <category> [flags]",
-				"reactor <command> [flags]",
+				"reactor <category> {flags}",
+				"reactor <command> {flags}",
 
 				"Commands: ",
 				"build                         creates build artifacts",
@@ -317,7 +317,7 @@ func TestValidSubCommandUsage(t *testing.T) {
 				"This command creates a React component of a given type and output component files in a project directory.",
 
 				"Usage:",
-				"reactor <name> [version] [flags]",
+				"reactor <name> [version] {flags}",
 
 				"Arguments: ",
 				"name                          name of the component to create",
