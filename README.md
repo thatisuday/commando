@@ -65,7 +65,7 @@ func main() {
     commando.
         SetExecutableName("reactor").
         SetVersion("v1.0.0").
-        SetDescription("This CLI tool helps you create and manage ReactJS projects.")
+        SetDescription("This CLI tool helps you create and manage React projects.")
 }
 ```
 
@@ -175,7 +175,7 @@ func main() {
   commando.
     SetExecutableName("reactor").
     SetVersion("v1.0.0").
-    SetDescription("Reactor is a command-line tool to generate ReactJS projects.\nIt helps you create components, write test cases, start a development server and much more.")
+    SetDescription("Reactor is a command-line tool to generate React projects.\nIt helps you create components, write test cases, start a development server and much more.")
 
   // configure the root-command
   // $ reactor <category>  --verbose|-V  --version|-v  --help|-h
@@ -199,11 +199,11 @@ func main() {
   // $ reactor create <name> [type]  --dir|-d <dir>  --type|-t [type]  --timeout [timeout]  --verbose|-v  --help|-h
   commando.
     Register("create").
-    SetDescription("This command creates a React component of a given type and output component files in a project directory.").
-    SetShortDescription("creates a React component").
+    SetDescription("This command creates a component of a given type and outputs component files in the project directory.").
+    SetShortDescription("creates a component").
     AddArgument("name", "name of the component to create", "").                                  // required
     AddArgument("version", "version of the component", "1.0.0").                                 // optional
-    AddFlag("dir, d", "output directory of the component files", commando.String, nil).          // required
+    AddFlag("dir, d", "output directory for the component files", commando.String, nil).         // required
     AddFlag("type, t", "type of the component to create", commando.String, "simple_type").       // optional
     AddFlag("timeout", "operation timeout in seconds", commando.Int, 60).                        // optional
     AddFlag("verbose,v", "display logs while creating the component files", commando.Bool, nil). // optional
@@ -270,7 +270,7 @@ $ reactor --help
 $ reactor -h
 $ reactor help
 
-Reactor is a command-line tool to generate ReactJS projects.
+Reactor is a command-line tool to generate React projects.
 It helps you create components, write test cases, start a development server and much more.
 
 Usage:
@@ -279,7 +279,7 @@ Usage:
 
 Commands: 
    build                         creates build artifacts
-   create                        creates a React component
+   create                        creates a component
    help                          displays usage informationn
    serve                         starts a development server
    version                       displays version number
@@ -309,7 +309,7 @@ Version: v1.0.0
 $ reactor create --help
 $ reactor create -h
 
-This command creates a React component of a given type and output component files in a project directory.
+This command creates a component of a given type and outputs component files in the project directory.
 
 Usage:
    reactor <name> [version] {flags}
@@ -319,7 +319,7 @@ Arguments:
    version                       version of the component (default: 1.0.0)
 
 Flags: 
-   -d, --dir                     output directory of the component files 
+   -d, --dir                     output directory for the component files 
    -h, --help                    displays usage information of the application or a command (default: false)
    --timeout                     operation timeout in seconds (default: 60)
    -t, --type                    type of the component to create (default: simple_type)

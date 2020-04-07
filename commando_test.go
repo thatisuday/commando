@@ -268,7 +268,7 @@ func TestValidRootCommandUsage(t *testing.T) {
 			fmt.Println("Error:", err)
 		} else {
 			values := []string{
-				"Reactor is a command-line tool to generate ReactJS projects.",
+				"Reactor is a command-line tool to generate React projects.",
 				"It helps you create components, write test cases, start a development server and much more.",
 
 				"Usage:",
@@ -277,7 +277,7 @@ func TestValidRootCommandUsage(t *testing.T) {
 
 				"Commands: ",
 				"build                         creates build artifacts",
-				"create                        creates a React component",
+				"create                        creates a component",
 				"help                          displays usage informationn",
 				"serve                         starts a development server",
 				"version                       displays version number",
@@ -314,7 +314,7 @@ func TestValidSubCommandUsage(t *testing.T) {
 			fmt.Println("Error:", err)
 		} else {
 			values := []string{
-				"This command creates a React component of a given type and output component files in a project directory.",
+				"This command creates a component of a given type and outputs component files in the project directory.",
 
 				"Usage:",
 				"reactor <name> [version] {flags}",
@@ -324,7 +324,7 @@ func TestValidSubCommandUsage(t *testing.T) {
 				"version                       version of the component (default: 1.0.0)",
 
 				"Flags: ",
-				"-d, --dir                     output directory of the component files",
+				"-d, --dir                     output directory for the component files",
 				"-h, --help                    displays usage information of the application or a command",
 				"--timeout                     operation timeout in seconds (default: 60)",
 				"-t, --type                    type of the component to create (default: simple_type)",

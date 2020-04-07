@@ -12,7 +12,7 @@ func main() {
 	commando.
 		SetExecutableName("reactor").
 		SetVersion("v1.0.0").
-		SetDescription("Reactor is a command-line tool to generate ReactJS projects.\nIt helps you create components, write test cases, start a development server and much more.").
+		SetDescription("Reactor is a command-line tool to generate React projects.\nIt helps you create components, write test cases, start a development server and much more.").
 		SetEventListener(func(eventName string) {
 			//fmt.Println("event-name: ", eventName)
 		})
@@ -39,11 +39,11 @@ func main() {
 	// $ reactor create <name> [type]  --dir|-d <dir>  --type|-t [type]  --timeout [timeout]  --verbose|-v  --help|-h
 	commando.
 		Register("create").
-		SetDescription("This command creates a React component of a given type and output component files in a project directory.").
-		SetShortDescription("creates a React component").
+		SetDescription("This command creates a component of a given type and outputs component files in the project directory.").
+		SetShortDescription("creates a component").
 		AddArgument("name", "name of the component to create", "").                                  // required
 		AddArgument("version", "version of the component", "1.0.0").                                 // optional
-		AddFlag("dir, d", "output directory of the component files", commando.String, nil).          // required
+		AddFlag("dir, d", "output directory for the component files", commando.String, nil).         // required
 		AddFlag("type, t", "type of the component to create", commando.String, "simple_type").       // optional
 		AddFlag("timeout", "operation timeout in seconds", commando.Int, 60).                        // optional
 		AddFlag("verbose,v", "display logs while creating the component files", commando.Bool, nil). // optional
