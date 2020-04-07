@@ -1,0 +1,67 @@
+# workflow name
+name: CI
+
+# trigger events
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+# jobs to run
+jobs:
+  
+  # job 1: test go module
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+
+      # step 1: set up go
+      - name: Set up Go 1.13
+        uses: actions/setup-go@v1
+        with:
+          go-version: 1.13
+      
+      # step 2: checkout repository code
+      - name: Checkout code into workspace directory
+        uses: actions/checkout@v2
+
+      # step 3: install dependencies
+      - name: Install all Go dependencies
+        run: go get
+      
+      # step 4: run test
+      - name: go test
+        run: go test
+
+  # job 2: run demo
+  run-demo:
+    name: Run Demo Application
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      
+      # step 1: set up go
+      - name: Set up Go 1.13
+        uses: actions/setup-go@v1
+        with:
+          go-version: 1.13
+      
+      # step 2: checkout repository code
+      - name: Checkout code into workspace directory
+        uses: actions/checkout@v2
+
+      # step 3: install dependencies
+      - name: Install all Go dependencies
+        run: go get
+      
+      # step 4: run demo
+      - name: go run
+        run: |
+          go run ./demo/reactor.go --help
+          go run ./demo/reactor.go create --help
+          go run ./demo/reactor.go service --verbose
+          go run ./demo/reactor.go create my-service -t service --dir ./service/my-service --timeout 10
