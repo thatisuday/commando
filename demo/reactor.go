@@ -36,7 +36,7 @@ func main() {
 		})
 
 	// register `create` sub-command
-	// $ reactor create <name> [type]  --dir|-d <dir>  --type|-t [type]  --timeout [timeout]  --verbose|-v  --help|-h
+	// $ reactor create <name> [version] [files] --dir|-d <dir>  --type|-t [type]  --timeout [timeout]  --verbose|-v  --help|-h  --no-clean
 	commando.
 		Register("create").
 		SetDescription("This command creates a component of a given type and outputs component files in the project directory.").
