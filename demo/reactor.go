@@ -43,10 +43,12 @@ func main() {
 		SetShortDescription("creates a component").
 		AddArgument("name", "name of the component to create", "").                                  // required
 		AddArgument("version", "version of the component", "1.0.0").                                 // optional
+		AddArgument("files...", "files to remove once component is created", "").                    // variadic, optional
 		AddFlag("dir, d", "output directory for the component files", commando.String, nil).         // required
 		AddFlag("type, t", "type of the component to create", commando.String, "simple_type").       // optional
 		AddFlag("timeout", "operation timeout in seconds", commando.Int, 60).                        // optional
 		AddFlag("verbose,v", "display logs while creating the component files", commando.Bool, nil). // optional
+		AddFlag("no-clean", "avoid cleanup of the component directory", commando.Bool, nil).         // optional, inverted flag
 		SetAction(func(args map[string]commando.ArgValue, flags map[string]commando.FlagValue) {
 			// print arguments
 			for k, v := range args {

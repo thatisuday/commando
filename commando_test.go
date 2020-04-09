@@ -48,8 +48,6 @@ func TestMissingActionFunction(t *testing.T) {
 	if output, err := cmdCreate.Output(); err != nil {
 		fmt.Println("Error:", err)
 	} else {
-		//fmt.Printf("Output: %s\n", output)
-
 		if !strings.Contains(fmt.Sprintf("%s", output), "Error: action function for the create command is not registered.") {
 			t.Fail()
 		}
@@ -210,7 +208,7 @@ func TestDefaultArgValue(t *testing.T) {
 // test if all values of a sub-command are valid
 func TestValidSubCommand(t *testing.T) {
 	// command
-	cmdCreate := exec.Command("go", "run", "tests/valid-registry.go", "create", "my-service", "1.0.0", "-t", "service", "--dir=./service/my-service", "--timeout", "10", "-v")
+	cmdCreate := exec.Command("go", "run", "tests/valid-registry.go", "create", "my-service", "1.0.0", "file1.txt", "file2.txt", "-t", "service", "--dir=./service/my-service", "--timeout", "10", "-v", "--no-clean")
 
 	// get output
 	if output, err := cmdCreate.Output(); err != nil {
@@ -219,11 +217,13 @@ func TestValidSubCommand(t *testing.T) {
 		values := []string{
 			"arg -> version: 1.0.0(string)",
 			"arg -> name: my-service(string)",
+			"arg -> files: file1.txt,file2.txt(string)",
 			"flag -> dir: ./service/my-service(string)",
 			"flag -> type: service(string)",
 			"flag -> timeout: 10(int)",
 			"flag -> verbose: true(bool)",
 			"flag -> help: false(bool)",
+			"flag -> clean: false(bool)",
 		}
 
 		for _, value := range values {
@@ -317,11 +317,12 @@ func TestValidSubCommandUsage(t *testing.T) {
 				"This command creates a component of a given type and outputs component files in the project directory.",
 
 				"Usage:",
-				"reactor <name> [version] {flags}",
+				"reactor <name> [version] [files] {flags}",
 
 				"Arguments: ",
 				"name                          name of the component to create",
 				"version                       version of the component (default: 1.0.0)",
+				"files                         files to remove once component is created {variadic}",
 
 				"Flags: ",
 				"-d, --dir                     output directory for the component files",
@@ -329,6 +330,7 @@ func TestValidSubCommandUsage(t *testing.T) {
 				"--timeout                     operation timeout in seconds (default: 60)",
 				"-t, --type                    type of the component to create (default: simple_type)",
 				"-v, --verbose                 display logs while creating the component files (default: false)",
+				"--no-clean                    avoid cleanup of the component directory (default: true)",
 			}
 
 			for _, value := range values {

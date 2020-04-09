@@ -111,7 +111,9 @@ The [`AddArgument`](https://pkg.go.dev/github.com/thatisuday/commando?tab=doc#Co
 
 The third argument is a `string` value which is the default-value of the argument. If user doesn't provide the value of this argument, this argument will get the value from the default-value. If the default-value is an empty string (""), then it becomes a **required argument**. If the value of a required argument is not provided by the user, an error message is displayed.
 
-**You should register all optional arguments before the required arguments**. Since these are positional values, it is mandatory to do so, else you would get inappropriate results. 
+**Ideally, you should register all required arguments before the optional arguments**. Since these are positional values, it is mandatory to do so, else you would get inappropriate results. 
+
+If the argument name ends with `...` suffix, then it is considered as a **variadic argument**. A variadic argument stores all the leftover argument values and concatenate them using command comma (`,`). Hence a command should only contain one variadic argument and it should be registered after all arguments are registered.
 
 > If the argument is already registered, then registration of the argument is skipped without returning an error. You can configure arguments of the **root-command** by passing `nil` as an argument to the [`Register()`](https://pkg.go.dev/github.com/thatisuday/commando?tab=doc#Register) function.
 
@@ -129,6 +131,8 @@ The second argument sets the description of the flag. This will be displayed wit
 The third argument is the **data-type** of the value that will be provided by the user for this flag. The value of this argument could be either [`commando.Bool`](https://pkg.go.dev/github.com/thatisuday/commando?tab=doc#pkg-constants), [`commando.Int`](https://pkg.go.dev/github.com/thatisuday/commando?tab=doc#pkg-constants) or [`commando.String`](https://pkg.go.dev/github.com/thatisuday/commando?tab=doc#pkg-constants). If the data-type is `commando.Bool`, then the flag does not take any user input (like `--version` flag).
 
 The last argument is the **default-value** of the flag. The value of this argument must be of the data-type provided in the previous argument. If `nil` value is provided, then the flag doesn't have any default-value and it becomes required to be provided by the user, except if the data-type is [`commando.Bool`](https://pkg.go.dev/github.com/thatisuday/commando?tab=doc#pkg-constants) in which case the default-value is `false` automatically.
+
+If the flag name starts with `no-` prefix, for example `no-clean`, then it is considered as an **inverted flag**. Default value of an inverted flag is `true`. When `--no-clean` flag is provided, value of this flag becomes `false`. This flag is stored without `no-` prefix, like `clean` here, however, `--clean` is not a valid flag.
 
 > If the flag is already registered, then registration of the flag is skipped without returning an error. You should avoid using the same short-name for multiple flags. You can configure flags of the **root-command** by passing `nil` as an argument to the [`Register()`](https://pkg.go.dev/github.com/thatisuday/commando?tab=doc#Register) function.
 
@@ -168,102 +172,107 @@ You can also pass a custom list of command-line arguments. In this case, Command
 package main
 
 import (
-  "fmt"
+	"fmt"
 
-  "github.com/thatisuday/commando"
+	"github.com/thatisuday/commando"
 )
 
 func main() {
 
-  // set CLI executable, version and description
-  commando.
-    SetExecutableName("reactor").
-    SetVersion("v1.0.0").
-    SetDescription("Reactor is a command-line tool to generate React projects.\nIt helps you create components, write test cases, start a development server and much more.")
+	// set CLI executable, version and description
+	commando.
+		SetExecutableName("reactor").
+		SetVersion("v1.0.0").
+		SetDescription("Reactor is a command-line tool to generate React projects.\nIt helps you create components, write test cases, start a development server and much more.").
+		SetEventListener(func(eventName string) {
+			//fmt.Println("event-name: ", eventName)
+		})
 
-  // configure the root-command
-  // $ reactor <category>  --verbose|-V  --version|-v  --help|-h
-  commando.
-    Register(nil).
-    AddArgument("category", "category of the information to look for", ""). // required
-    AddFlag("verbose,V", "display log information ", commando.Bool, nil).   // optional
-    SetAction(func(args map[string]commando.ArgValue, flags map[string]commando.FlagValue) {
-      // print arguments
-      for k, v := range args {
-        fmt.Printf("arg -> %v: %v(%T)\n", k, v.Value, v.Value)
-      }
+	// configure the root-command
+	// $ reactor <category>  --verbose|-V  --version|-v  --help|-h
+	commando.
+		Register(nil).
+		AddArgument("category", "category of the information to look for", ""). // required
+		AddFlag("verbose,V", "display log information ", commando.Bool, nil).   // optional
+		SetAction(func(args map[string]commando.ArgValue, flags map[string]commando.FlagValue) {
+			// print arguments
+			for k, v := range args {
+				fmt.Printf("arg -> %v: %v(%T)\n", k, v.Value, v.Value)
+			}
 
-      // print flags
-      for k, v := range flags {
-        fmt.Printf("flag -> %v: %v(%T)\n", k, v.Value, v.Value)
-      }
-    })
+			// print flags
+			for k, v := range flags {
+				fmt.Printf("flag -> %v: %v(%T)\n", k, v.Value, v.Value)
+			}
+		})
 
-  // register `create` sub-command
-  // $ reactor create <name> [type]  --dir|-d <dir>  --type|-t [type]  --timeout [timeout]  --verbose|-v  --help|-h
-  commando.
-    Register("create").
-    SetDescription("This command creates a component of a given type and outputs component files in the project directory.").
-    SetShortDescription("creates a component").
-    AddArgument("name", "name of the component to create", "").                                  // required
-    AddArgument("version", "version of the component", "1.0.0").                                 // optional
-    AddFlag("dir, d", "output directory for the component files", commando.String, nil).         // required
-    AddFlag("type, t", "type of the component to create", commando.String, "simple_type").       // optional
-    AddFlag("timeout", "operation timeout in seconds", commando.Int, 60).                        // optional
-    AddFlag("verbose,v", "display logs while creating the component files", commando.Bool, nil). // optional
-    SetAction(func(args map[string]commando.ArgValue, flags map[string]commando.FlagValue) {
-      // print arguments
-      for k, v := range args {
-        fmt.Printf("arg -> %v: %v(%T)\n", k, v.Value, v.Value)
-      }
+	// register `create` sub-command
+	// $ reactor create <name> [type]  --dir|-d <dir>  --type|-t [type]  --timeout [timeout]  --verbose|-v  --help|-h
+	commando.
+		Register("create").
+		SetDescription("This command creates a component of a given type and outputs component files in the project directory.").
+		SetShortDescription("creates a component").
+		AddArgument("name", "name of the component to create", "").                                  // required
+		AddArgument("version", "version of the component", "1.0.0").                                 // optional
+		AddArgument("files...", "files to remove once component is created", "").                    // variadic, optional
+		AddFlag("dir, d", "output directory for the component files", commando.String, nil).         // required
+		AddFlag("type, t", "type of the component to create", commando.String, "simple_type").       // optional
+		AddFlag("timeout", "operation timeout in seconds", commando.Int, 60).                        // optional
+		AddFlag("verbose,v", "display logs while creating the component files", commando.Bool, nil). // optional
+		AddFlag("no-clean", "avoid cleanup of the component directory", commando.Bool, nil).         // optional, inverted flag
+		SetAction(func(args map[string]commando.ArgValue, flags map[string]commando.FlagValue) {
+			// print arguments
+			for k, v := range args {
+				fmt.Printf("arg -> %v: %v(%T)\n", k, v.Value, v.Value)
+			}
 
-      // print flags
-      for k, v := range flags {
-        fmt.Printf("flag -> %v: %v(%T)\n", k, v.Value, v.Value)
-      }
-    })
+			// print flags
+			for k, v := range flags {
+				fmt.Printf("flag -> %v: %v(%T)\n", k, v.Value, v.Value)
+			}
+		})
 
-  // register `serve` sub-command
-  // $ reactor serve --verbose|-v  --help|-h
-  commando.
-    Register("serve").
-    SetDescription("This command starts the Webpack dev-server on an available port.").
-    SetShortDescription("starts a development server").
-    AddFlag("verbose,v", "display logs while serving the project", commando.Bool, nil). // optional
-    SetAction(func(args map[string]commando.ArgValue, flags map[string]commando.FlagValue) {
-      // print arguments
-      for k, v := range args {
-        fmt.Printf("arg -> %v: %v(%T)\n", k, v.Value, v.Value)
-      }
+	// register `serve` sub-command
+	// $ reactor serve --verbose|-v  --help|-h
+	commando.
+		Register("serve").
+		SetDescription("This command starts the Webpack dev-server on an available port.").
+		SetShortDescription("starts a development server").
+		AddFlag("verbose,v", "display logs while serving the project", commando.Bool, nil). // optional
+		SetAction(func(args map[string]commando.ArgValue, flags map[string]commando.FlagValue) {
+			// print arguments
+			for k, v := range args {
+				fmt.Printf("arg -> %v: %v(%T)\n", k, v.Value, v.Value)
+			}
 
-      // print flags
-      for k, v := range flags {
-        fmt.Printf("flag -> %v: %v(%T)\n", k, v.Value, v.Value)
-      }
-    })
+			// print flags
+			for k, v := range flags {
+				fmt.Printf("flag -> %v: %v(%T)\n", k, v.Value, v.Value)
+			}
+		})
 
-  // register `build` sub-command
-  // $ reactor build  --dir|-d <dir>  --verbose|-v  --help|-h
-  commando.
-    Register("build").
-    SetDescription("This command builds the project with Webpack and outputs the build files in the given directory.").
-    SetShortDescription("creates build artifacts").
-    AddFlag("dir,d", "output directory of the build files", commando.String, nil).      // required
-    AddFlag("verbose,v", "display logs while serving the project", commando.Bool, nil). // optional
-    SetAction(func(args map[string]commando.ArgValue, flags map[string]commando.FlagValue) {
-      // print arguments
-      for k, v := range args {
-        fmt.Printf("arg -> %v: %v(%T)\n", k, v.Value, v.Value)
-      }
+	// register `build` sub-command
+	// $ reactor build  --dir|-d <dir>  --verbose|-v  --help|-h
+	commando.
+		Register("build").
+		SetDescription("This command builds the project with Webpack and outputs the build files in the given directory.").
+		SetShortDescription("creates build artifacts").
+		AddFlag("dir,d", "output directory of the build files", commando.String, nil).      // required
+		AddFlag("verbose,v", "display logs while serving the project", commando.Bool, nil). // optional
+		SetAction(func(args map[string]commando.ArgValue, flags map[string]commando.FlagValue) {
+			// print arguments
+			for k, v := range args {
+				fmt.Printf("arg -> %v: %v(%T)\n", k, v.Value, v.Value)
+			}
 
-      // print flags
-      for k, v := range flags {
-        fmt.Printf("flag -> %v: %v(%T)\n", k, v.Value, v.Value)
-      }
-    })
+			// print flags
+			for k, v := range flags {
+				fmt.Printf("flag -> %v: %v(%T)\n", k, v.Value, v.Value)
+			}
+		})
 
-  // parse command-line arguments from the STDIN
-  commando.Parse(nil)
+	// parse command-line arguments from the STDIN
+	commando.Parse(nil)
 }
 ```
 
@@ -316,13 +325,15 @@ $ reactor create -h
 This command creates a component of a given type and outputs component files in the project directory.
 
 Usage:
-   reactor <name> [version] {flags}
+   reactor <name> [version] [files] {flags}
 
 Arguments: 
    name                          name of the component to create 
    version                       version of the component (default: 1.0.0)
+   files                         files to remove once component is created {variadic}
 
 Flags: 
+   --no-clean                    avoid cleanup of the component directory (default: true)
    -d, --dir                     output directory for the component files 
    -h, --help                    displays usage information of the application or a command (default: false)
    --timeout                     operation timeout in seconds (default: 60)
@@ -373,28 +384,32 @@ Oops! Since we have specified that the value of the `--timeout` flag must be an 
 $ reactor create my-service -t service --dir ./service/my-service --timeout 10    
 arg -> name: my-service(string)
 arg -> version: 1.0.0(string)
-flag -> timeout: 10(int)
-flag -> verbose: false(bool)
-flag -> help: false(bool)
+arg -> files: (string)
 flag -> dir: ./service/my-service(string)
 flag -> type: service(string)
+flag -> timeout: 10(int)
+flag -> verbose: false(bool)
+flag -> clean: true(bool)
+flag -> help: false(bool)
 ```
 
 Here, the value of the `version` argument the default value we provided earlier since the user did not provide any value for it. Also, since it is an optional argument, Commando did not print any errors.
 
 ```
-$ reactor create my-service 2.0.5 -t service --dir=./service/my-service --timeout 10 -v
+$ reactor create my-service 2.0.5 file1.txt file2.txt file3.txt -t service --dir=./service/my-service --timeout 10 -v --no-clean
 arg -> name: my-service(string)
 arg -> version: 2.0.5(string)
-flag -> verbose: true(bool)
+arg -> files: file1.txt,file2.txt,file3.txt(string)
 flag -> help: false(bool)
 flag -> dir: ./service/my-service(string)
 flag -> type: service(string)
 flag -> timeout: 10(int)
+flag -> verbose: true(bool)
+flag -> clean: false(bool)
 ```
 
 ## How to create a CLI application?
-The example above is a clear demonstration of how a CLI application can be created, however, here are a few things you should be concerned about.
+The example above is a clear demonstration of how a CLI application can be created, however, you can follow this tutorial on [**Medium**](https://medium.com/@thatisuday/building-simple-command-line-cli-applications-in-go-using-commando-8a8e0edbd48a). Here are a few things you should be concerned about.
 
 - Keep your argument names and flag names as simple as possible.
 - Try not to override the `--help` or `--version` flags and their short-names.

@@ -76,6 +76,23 @@ const (
 
 /********************************************/
 
+// check if command is the root command
+func isRootCommand(command string) bool {
+	return command == rootCommandName
+}
+
+// remove all whitespaces from a string
+func removeWhitespaces(value string) string {
+	return strings.ReplaceAll(value, " ", "")
+}
+
+// trim all whitespaces from a string
+func trimWhitespaces(value string) string {
+	return strings.Trim(value, " ")
+}
+
+/********************************************/
+
 // CommandRegistry holds the registered command configurations.
 // It also stores the version of the CLI application and its description.
 type CommandRegistry struct {
@@ -102,28 +119,28 @@ type CommandRegistry struct {
 // AddCommand adds a command in the registry.
 func (cr *CommandRegistry) addCommand(name string) *Command {
 
-	_name := strings.ReplaceAll(name, " ", "") // remove whitespaces
+	// register command with clapper
+	clpCommandConfig, exists := cr.registry.Register(name)
 
-	// if command is already registered, return the command-config from the registry
-	if _c, ok := cr.Commands[_name]; ok {
-		return _c
+	// if command is already registered, return
+	if exists {
+		return cr.Commands[clpCommandConfig.Name]
 	}
 
 	/*---------------------------*/
 
 	// create a command config
 	c := &Command{
-		Carg:   cr.registry.Register(_name), // register the command with clapper and store the config-config
-		Name:   _name,
-		IsRoot: _name == rootCommandName,
-		Args:   make(map[string]*Arg),
-		Flags:  make(map[string]*Flag),
+		clpCommandConfig: clpCommandConfig,
+		IsRoot:           clpCommandConfig.Name == rootCommandName,
+		Args:             make(map[string]*Arg),
+		Flags:            make(map[string]*Flag),
 	}
 
 	/*---------------------------*/
 
 	// register a command config inside the registry
-	cr.Commands[_name] = c
+	cr.Commands[clpCommandConfig.Name] = c
 
 	/*---------------------------*/
 
@@ -135,7 +152,7 @@ func (cr *CommandRegistry) addCommand(name string) *Command {
 // SetExecutableName sets the executable name of the registry.
 func (cr *CommandRegistry) SetExecutableName(name string) *CommandRegistry {
 
-	if _name := strings.ReplaceAll(name, " ", ""); _name == "" {
+	if _name := removeWhitespaces(name); _name == "" {
 		fmt.Printf("Error: executable name must be a non-empty string.\n")
 		os.Exit(0)
 	} else {
@@ -149,7 +166,7 @@ func (cr *CommandRegistry) SetExecutableName(name string) *CommandRegistry {
 // This version will be printed with the `--version` flag on the root-command.
 func (cr *CommandRegistry) SetVersion(version string) *CommandRegistry {
 
-	cr.Version = strings.Trim(version, " ") // trim whitespaces
+	cr.Version = trimWhitespaces(version) // trim whitespaces
 
 	return cr
 }
@@ -158,7 +175,7 @@ func (cr *CommandRegistry) SetVersion(version string) *CommandRegistry {
 // This description will be printed with `--help` flag on the root-command.
 func (cr *CommandRegistry) SetDescription(desc string) *CommandRegistry {
 
-	cr.Desc = strings.Trim(desc, " ") // trim whitespaces
+	cr.Desc = trimWhitespaces(desc) // trim whitespaces
 
 	return cr
 }
@@ -200,7 +217,7 @@ func (cr *CommandRegistry) Register(name interface{}) *Command {
 	/*---------------------------*/
 
 	// (replace all whitespaces)
-	_name := strings.ReplaceAll(nameString, " ", "") // remove all whitespaces
+	_name := removeWhitespaces(nameString) // remove all whitespaces
 
 	// add command to the registry
 	c := cr.addCommand(_name)
@@ -243,7 +260,7 @@ func (cr *CommandRegistry) Parse(osArgs []string) {
 	/*---------------------------*/
 
 	// parse arguments with `clapper` and get the result.
-	// `result` is a struct of type `*clapper.Carg`
+	// `result` is a struct of type `*clapper.CommandConfig`
 	result, err := cr.registry.Parse(_osArgs)
 
 	/*---------------------------*/
@@ -260,12 +277,8 @@ func (cr *CommandRegistry) Parse(osArgs []string) {
 		// unknown flag
 		case clapper.ErrorUnknownFlag:
 			errorUnknownFlag := err.(clapper.ErrorUnknownFlag)
+			fmt.Printf("Error: %s is not a valid flag.\n", errorUnknownFlag.Name)
 
-			if errorUnknownFlag.IsShort {
-				fmt.Printf("Error: -%s is not a valid flag.\n", errorUnknownFlag.Name)
-			} else {
-				fmt.Printf("Error: --%s is not a valid flag.\n", errorUnknownFlag.Name)
-			}
 		// unsupported flag
 		case clapper.ErrorUnsupportedFlag:
 			errorUnsupportedFlag := err.(clapper.ErrorUnsupportedFlag)
@@ -283,24 +296,24 @@ func (cr *CommandRegistry) Parse(osArgs []string) {
 	/*---------------------------*/
 
 	// get command configuration from the registry
-	c := cr.Commands[result.Cmd]
+	command := cr.Commands[result.Name]
 
 	/*---------------------------*/
 
 	// if `help` command is provided, display usage of the root-command
-	if result.Cmd == helpCommandName {
+	if result.Name == helpCommandName {
 		cr.PrintHelp(cr.Commands[rootCommandName]) // usage of the root-command
 		os.Exit(0)
 	}
 
 	// if `--help` or `-h` flag is provided, display usage of the command
 	if result.Flags[helpFlagName].Value == "true" {
-		cr.PrintHelp(c)
+		cr.PrintHelp(command)
 		os.Exit(0)
 	}
 
 	// if `version` command or `--version` flag is provided for the root-command, display version number
-	if result.Cmd == versionCommandName || (c.IsRoot && result.Flags[versionFlagName].Value == "true") {
+	if result.Name == versionCommandName || (command.IsRoot && result.Flags[versionFlagName].Value == "true") {
 		cr.PrintVersion()
 		os.Exit(0)
 	}
@@ -308,11 +321,11 @@ func (cr *CommandRegistry) Parse(osArgs []string) {
 	/*---------------------------*/
 
 	// check if action function is missing
-	if c.Action == nil {
+	if command.Action == nil {
 
 		// show error message only for non-root-command
-		if !c.IsRoot {
-			fmt.Printf("Error: action function for the %s command is not registered.\n", c.Name)
+		if !command.IsRoot {
+			fmt.Printf("Error: action function for the %s command is not registered.\n", command.clpCommandConfig.Name)
 		}
 
 		os.Exit(0)
@@ -321,7 +334,7 @@ func (cr *CommandRegistry) Parse(osArgs []string) {
 	/*---------------------------*/
 
 	// for each argument, validate the argument value
-	for name, arg := range c.Args {
+	for name, arg := range command.Args {
 
 		// get default-value and user-value of the argument from the `result`
 		defaultValue := result.Args[name].DefaultValue
@@ -351,7 +364,7 @@ func (cr *CommandRegistry) Parse(osArgs []string) {
 	/*---------------------------*/
 
 	// for each flag, validate the flag value
-	for name, flag := range c.Flags {
+	for name, flag := range command.Flags {
 
 		// get default-value and user-value of the flag from the `result`
 		defaultValue := result.Flags[name].DefaultValue
@@ -405,7 +418,7 @@ func (cr *CommandRegistry) Parse(osArgs []string) {
 	/*---------------------------*/
 
 	// execute action function
-	c.Action(argValues, flagValues)
+	command.Action(argValues, flagValues)
 
 }
 
@@ -462,10 +475,16 @@ func (cr *CommandRegistry) PrintHelp(c *Command) {
 
 	// commands (without root-command)
 	commands := make(map[string]*Command)
-	for k, v := range cr.Commands {
-		if !v.IsRoot {
-			commands[k] = v
+	for name, command := range cr.Commands {
+		if !command.IsRoot {
+			commands[name] = command
 		}
+	}
+
+	// arguments (ordered list)
+	arguments := make([]*Arg, 0)
+	for _, name := range c.clpCommandConfig.ArgNames {
+		arguments = append(arguments, c.Args[name])
 	}
 
 	// template data
@@ -474,7 +493,7 @@ func (cr *CommandRegistry) PrintHelp(c *Command) {
 		Executable    string
 		IsRootCommand bool
 		Desc          string
-		Args          map[string]*Arg
+		Args          []*Arg
 		Flags         map[string]*Flag
 		Commands      map[string]*Command
 	}{
@@ -482,7 +501,7 @@ func (cr *CommandRegistry) PrintHelp(c *Command) {
 		Executable:    exeName,
 		IsRootCommand: c.IsRoot,
 		Desc:          c.Desc,
-		Args:          c.Args,
+		Args:          arguments,
 		Flags:         c.Flags,
 		Commands:      commands,
 	}
@@ -512,10 +531,7 @@ var DefaultCommandRegistry = NewCommandRegistry()
 type Command struct {
 
 	// command configuration of the `clapper`
-	Carg *clapper.Carg
-
-	// name of the command (AKA sub-command)
-	Name string
+	clpCommandConfig *clapper.CommandConfig
 
 	// description of the command
 	Desc string
@@ -538,49 +554,44 @@ type Command struct {
 
 // SetDescription sets the description for a command.
 func (c *Command) SetDescription(desc string) *Command {
-	c.Desc = strings.Trim(desc, " ") // trim whitespaces
+	c.Desc = trimWhitespaces(desc) // trim whitespaces
 
 	return c
 }
 
 // SetShortDescription sets the short-description for a command.
 func (c *Command) SetShortDescription(shortDesc string) *Command {
-	c.ShortDesc = strings.Trim(shortDesc, " ") // trim whitespaces
+	c.ShortDesc = trimWhitespaces(shortDesc) // trim whitespaces
 
 	return c
 }
 
 // AddArgument registers an argument for a command.
 // When the defaultValue is an empty string, a user needs to provide a value for this argument.
+// If an argument name ends with `...`, it is an variadic argument.
 func (c *Command) AddArgument(name string, desc string, defaultValue string) *Command {
 
-	// (replace all whitespaces)
-	_name := strings.ReplaceAll(name, " ", "")
+	// register the argument with clapper
+	clpArg, exists := c.clpCommandConfig.AddArg(name, defaultValue)
 
-	// if the argument is already registered, return
-	if _, ok := c.Args[_name]; ok {
+	// if argument is already registered, return
+	if exists {
 		return c
 	}
 
 	/*---------------------------*/
 
-	// register the argument with `clapper`
-	c.Carg.AddArg(_name, defaultValue)
-
-	/*---------------------------*/
-
-	// create an argument config
-	a := &Arg{
-		Name:         _name,
-		Desc:         strings.Trim(desc, " "), // trim whitespaces
-		DefaultValue: defaultValue,
-		IsRequired:   defaultValue == "",
+	// create an argument object
+	arg := &Arg{
+		ClpArg:     clpArg,
+		Desc:       trimWhitespaces(desc),                    // trim whitespaces
+		IsRequired: defaultValue == "" && !clpArg.IsVariadic, // variadic arguments are always optional
 	}
 
 	/*---------------------------*/
 
 	// register the argument with the command
-	c.Args[_name] = a
+	c.Args[clpArg.Name] = arg
 
 	/*---------------------------*/
 
@@ -589,14 +600,14 @@ func (c *Command) AddArgument(name string, desc string, defaultValue string) *Co
 
 // AddFlag registers a flag for the command.
 // The flagNames argument should contain "long,short" flag names (e.g. "version,v").
-// If dataType argument is `commando.Bool` (boolean), then the defaultValue argument is ignored and should be set to `nil`.
+// If dataType argument is `commando.Bool` (boolean), then the defaultValue argument is ignored.
 // For non-boolean flags, if the defaultValue argument is `nil`, then the flag is required.
 func (c *Command) AddFlag(flagNames string, desc string, dataType int, defaultValue interface{}) *Command {
 
 	// (replace all whitespaces)
-	_flagNames := strings.ReplaceAll(flagNames, " ", "")
+	_flagNames := removeWhitespaces(flagNames)
 
-	// split flagNames
+	// split `flagNames` value by comma (,)
 	flagNamesList := strings.Split(_flagNames, ",")
 
 	// long flag name
@@ -606,13 +617,6 @@ func (c *Command) AddFlag(flagNames string, desc string, dataType int, defaultVa
 	var shortName string
 	if len(flagNamesList) > 1 {
 		shortName = flagNamesList[1]
-	}
-
-	/*---------------------------*/
-
-	// if flag is already registered, return
-	if _, ok := c.Flags[name]; ok {
-		return c
 	}
 
 	/*---------------------------*/
@@ -651,7 +655,7 @@ func (c *Command) AddFlag(flagNames string, desc string, dataType int, defaultVa
 				os.Exit(0)
 			} else {
 				// check for empty string value
-				if strings.ReplaceAll(val, " ", "") == "" {
+				if removeWhitespaces(val) == "" {
 					_isRequired = true
 				} else {
 					_defaultValue = fmt.Sprintf("%v", defaultValue.(string))
@@ -666,26 +670,29 @@ func (c *Command) AddFlag(flagNames string, desc string, dataType int, defaultVa
 
 	/*---------------------------*/
 
-	// register the flag with `clapper`
-	c.Carg.AddFlag(name, shortName, dataType == Bool, _defaultValue)
+	// register the flag with clapper
+	clpFlag, exists := c.clpCommandConfig.AddFlag(name, shortName, dataType == Bool, _defaultValue)
+
+	// if argument is already registered, return
+	if exists {
+		return c
+	}
 
 	/*---------------------------*/
 
-	// create a flag config
-	f := &Flag{
-		Name:            name,
-		ShortName:       shortName,
-		Desc:            strings.Trim(desc, " "), // trim whitespaces
-		DataType:        dataType,
-		DefaultValue:    _defaultValue,
-		DefaultValueRaw: defaultValue,
-		IsRequired:      _isRequired,
+	// create a flag object
+	flag := &Flag{
+		ClpFlag:      clpFlag,
+		Desc:         trimWhitespaces(desc), // trim whitespaces
+		DataType:     dataType,
+		DefaultValue: defaultValue,
+		IsRequired:   _isRequired,
 	}
 
 	/*---------------------------*/
 
 	// register the flag with the command
-	c.Flags[name] = f
+	c.Flags[clpFlag.Name] = flag
 
 	/*---------------------------*/
 
@@ -709,15 +716,22 @@ func (c *Command) SetAction(action func(map[string]ArgValue, map[string]FlagValu
 
 // Arg defines the configuration of an argument.
 type Arg struct {
-	Name         string
-	Desc         string
-	DefaultValue string
-	IsRequired   bool
+
+	// clapper argument config
+	ClpArg *clapper.Arg
+
+	// argument description
+	Desc string
+
+	// is argument required to be provided by the user
+	IsRequired bool
 }
 
 // ArgValue represents an argument value to pass as an argument in action function.
 type ArgValue struct {
 	Arg
+
+	// value of the argument
 	Value string
 }
 
@@ -725,13 +739,21 @@ type ArgValue struct {
 
 // Flag defines the configuration of a flag.
 type Flag struct {
-	Name            string
-	ShortName       string
-	Desc            string
-	DataType        int
-	DefaultValue    string
-	DefaultValueRaw interface{}
-	IsRequired      bool
+
+	// clapper flag config
+	ClpFlag *clapper.Flag
+
+	// flag description
+	Desc string
+
+	// data type of the flag value
+	DataType int
+
+	// default value of the flag
+	DefaultValue interface{}
+
+	// is flag required to be provided by the user
+	IsRequired bool
 }
 
 // FlagValue represents a flag value to pass as an argument in action function.
@@ -747,7 +769,7 @@ func (fv FlagValue) GetBool() (bool, error) {
 		return fv.Value.(bool), nil
 	}
 
-	return false, fmt.Errorf("%s flag can not be converted to bool", fv.Name)
+	return false, fmt.Errorf("%s flag can not be converted to bool", fv.ClpFlag.Name)
 }
 
 // GetInt returns `int` value of a flag.
@@ -756,7 +778,7 @@ func (fv FlagValue) GetInt() (int, error) {
 		return fv.Value.(int), nil
 	}
 
-	return 0, fmt.Errorf("%s flag can not be converted to int", fv.Name)
+	return 0, fmt.Errorf("%s flag can not be converted to int", fv.ClpFlag.Name)
 }
 
 // GetString returns `string` value of a flag.
@@ -765,7 +787,7 @@ func (fv FlagValue) GetString() (string, error) {
 		return fv.Value.(string), nil
 	}
 
-	return "", fmt.Errorf("%s flag can not be converted to string", fv.Name)
+	return "", fmt.Errorf("%s flag can not be converted to string", fv.ClpFlag.Name)
 }
 
 /*---------------------*/
