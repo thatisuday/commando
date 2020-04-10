@@ -36,7 +36,7 @@ Flags: {{ range $k, $v := . }}
    {{ if $v.ClpFlag.ShortName -}}-{{ $v.ClpFlag.ShortName }}, {{ if $v.ClpFlag.IsInverted }}{{ printf "--no-%-24v" $k }}{{ else }}{{ printf "--%-24v" $k }}{{ end -}}
    {{ else }}{{ if $v.ClpFlag.IsInverted }}{{ printf "--no-%-25v" $k }}{{ else }}{{ printf "--%-28v" $k }}{{ end -}}
    {{- end -}}
-   {{- $v.Desc }} {{ if $v.ClpFlag.DefaultValue }}(default: {{ $v.ClpFlag.DefaultValue }}){{ end }}
+   {{- $v.Desc }} {{ if $v.ClpFlag.DefaultValue }}(default: {{ if $v.ClpFlag.IsInverted }}false{{ else }}{{ $v.ClpFlag.DefaultValue }}{{ end }}){{ end }}
    {{- end -}}
 {{- end -}}
 
