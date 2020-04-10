@@ -330,7 +330,7 @@ func TestValidSubCommandUsage(t *testing.T) {
 				"--timeout                     operation timeout in seconds (default: 60)",
 				"-t, --type                    type of the component to create (default: simple_type)",
 				"-v, --verbose                 display logs while creating the component files (default: false)",
-				"--no-clean                    avoid cleanup of the component directory (default: true)",
+				"--no-clean                    avoid cleanup of the component directory (default: false)",
 			}
 
 			for _, value := range values {
