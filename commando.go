@@ -56,7 +56,7 @@ var rootCommandName = ""
 var (
 	helpCommandName         = "help"
 	helpCommandDesc         = "This command displays the usage information of this CLI application."
-	helpCommandShortDesc    = "displays usage informationn"
+	helpCommandShortDesc    = "displays usage information"
 	versionCommandName      = "version"
 	versionCommandDesc      = "This command displays the version number of this CLI application"
 	versionCommandShortDesc = "displays version number"

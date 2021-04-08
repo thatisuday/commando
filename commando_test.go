@@ -278,7 +278,7 @@ func TestValidRootCommandUsage(t *testing.T) {
 				"Commands: ",
 				"build                         creates build artifacts",
 				"create                        creates a component",
-				"help                          displays usage informationn",
+				"help                          displays usage information",
 				"serve                         starts a development server",
 				"version                       displays version number",
 
