@@ -4,7 +4,7 @@ var usageTemplate = `
 {{ if .IsRootCommand }}{{ .CliDesc }}{{ else }}{{ .Desc }}{{ end }}
 
 Usage:
-   {{ .Executable }} {{ with .Args -}}
+   {{ .Executable }} {{ if not .IsRootCommand }}{{ .Command }} {{ end }}{{ with .Args -}}
    {{ range $k, $v := . }}{{ if $v.IsRequired }}<{{ $v.ClpArg.Name }}>{{ else }}[{{ $v.ClpArg.Name }}]{{ end }} {{ end }}{{ end }}{flags}{{- if .IsRootCommand }}{{ if .Commands }}
    {{ .Executable }} <command> {flags}{{ end }}{{ end -}}
 

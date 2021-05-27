@@ -325,7 +325,7 @@ $ reactor create -h
 This command creates a component of a given type and outputs component files in the project directory.
 
 Usage:
-   reactor <name> [version] [files] {flags}
+   reactor create <name> [version] [files] {flags}
 
 Arguments: 
    name                          name of the component to create 
