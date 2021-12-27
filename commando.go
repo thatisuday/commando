@@ -496,6 +496,7 @@ func (cr *CommandRegistry) PrintHelp(c *Command) {
 		Args          []*Arg
 		Flags         map[string]*Flag
 		Commands      map[string]*Command
+		Command       string
 	}{
 		CliDesc:       cr.Desc,
 		Executable:    exeName,
@@ -504,6 +505,7 @@ func (cr *CommandRegistry) PrintHelp(c *Command) {
 		Args:          arguments,
 		Flags:         c.Flags,
 		Commands:      commands,
+		Command:       c.clpCommandConfig.Name,
 	}
 
 	// parse help template
